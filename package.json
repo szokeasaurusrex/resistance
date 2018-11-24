@@ -1,0 +1,27 @@
+{
+  "name": "resistance",
+  "version": "1.0.0",
+  "description": "Online multiplayer implementation of resistance game",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/szokeasaurusrex/resistance.git"
+  },
+  "author": "Daniel Szoke",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/szokeasaurusrex/resistance/issues"
+  },
+  "homepage": "https://github.com/szokeasaurusrex/resistance#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "next": "^7.0.2",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3"
+  }
+}
