@@ -1,6 +1,8 @@
 'use strict'
 
-const express = require('express')
+const server = require('express')()
+const http = require('http').createServer(server)
+const io = require('socket.io')(http)
 const next = require('next')
 const bodyParser = require('body-parser')
 
@@ -11,7 +13,6 @@ const handle = app.getRequestHandler()
 async function runApp() {
   try {
     await app.prepare()
-    const server = express()
 
     server.use(bodyParser.urlencoded({ extended: false }))
     server.use(bodyParser.json())
@@ -28,7 +29,7 @@ async function runApp() {
       return handle(req, res)
     })
 
-    server.listen(process.env.PORT || 3000, (err) => {
+    http.listen(process.env.PORT || 3000, err => {
       if (err) throw err
       console.log('> Ready on http://localhost:3000')
     })
