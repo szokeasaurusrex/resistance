@@ -2,11 +2,13 @@
 
 import React from 'react'
 import { Row, Col, Button } from 'reactstrap'
+import Router from 'next/router'
 import PageLayout from '../components/PageLayout.js'
 import PageHeader from '../components/PageHeader.js'
 import Home from '../components/Home.js'
 import Create from '../components/Create.js'
 import Join from '../components/Join.js'
+import io from 'socket.io-client'
 
 export default class Index extends React.Component {
   constructor(props) {
@@ -17,10 +19,12 @@ export default class Index extends React.Component {
     }
     this.handleCreate = this.handleCreate.bind(this)
     this.handleJoin = this.handleJoin.bind(this)
-    this.handleCreateSubmit = this.handleCreateSubmit.bind(this)
     this.backToHome = this.backToHome.bind(this)
   }
   componentDidMount() {
+    // if (sesssionStrorage.authKey) {
+    //   Router.push('/game')
+    // }
     this.backToHome()
   }
   hidden(componentName) {
@@ -38,12 +42,38 @@ export default class Index extends React.Component {
       header: 'Join Game'
     })
   }
-  handleCreateSubmit(object) {
-    console.log(object)
-  }
-  handleJoinSubmit(event) {
-    event.preventDefault()
-    alert('Game joined!')
+  async handleCreateJoinSubmit(event) {
+    try {
+      event.preventDefault()
+      const form = event.target
+      const data = { playerName: form.name.value }
+      if (form.code && (form.code.value >= 1000000 || form.code.value < 0)) {
+        throw new Error(
+          'Game must be 6 digits or less, and cannot be negative.'
+        )
+      } else if (form.code) {
+        data.gameCode = form.code.value
+      }
+      const response = await fetch('/join', {
+        method: 'post',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8'
+        },
+        body: JSON.stringify(data)
+      })
+      const responseData = await response.json()
+
+      if (responseData.error) {
+        throw responseData.error
+      }
+      sessionStorage.authKey = JSON.stringify(responseData)
+      Router.push('/game')
+    } catch (e) {
+      alert('Error: ' + e.message)
+      if (e.name != 'UserException') {
+        console.error(e)
+      }
+    }
   }
   backToHome() {
     this.setState({
@@ -54,14 +84,16 @@ export default class Index extends React.Component {
   render() {
     return (
       <PageLayout title='Resistance'>
-        <PageHeader>{ this.state.header }</PageHeader>
+        <PageHeader>
+          <h1 className='display-4'>{ this.state.header }</h1>
+        </PageHeader>
         <Home onClickCreate={ this.handleCreate }
           onClickJoin={ this.handleJoin }
           hidden={ this.hidden('home') } />
-        <Create onSubmit={ this.handleCreateSubmit }
+        <Create onSubmit={ this.handleCreateJoinSubmit }
           onClickBack={ this.backToHome }
           hidden={ this.hidden('create')} />
-        <Join onSubmit={ this.handleJoinSubmit }
+        <Join onSubmit={ this.handleCreateJoinSubmit }
           onClickBack={ this.backToHome }
           hidden={ this.hidden('join') } />
 

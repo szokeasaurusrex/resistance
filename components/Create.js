@@ -8,17 +8,12 @@ import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 export default class Create extends React.Component {
   constructor(props) {
     super(props)
-    this.handleSubmit = this.handleSubmit.bind(this)
     this.formRef = React.createRef()
-  }
-  handleSubmit(event) {
-    event.preventDefault()
-    this.props.onSubmit(this.formRef.current)
   }
   render() {
     const { children, onSubmit, onClickBack, ...rest } = this.props
     return (
-      <Form { ...rest } onSubmit={ this.handleSubmit } ref={ this.formRef }>
+      <Form { ...rest } onSubmit={ onSubmit } ref={ this.formRef }>
         <FormGroup>
           <Label for='name'>Name:</Label>
           <Input type='text' name='name' id='name-input'

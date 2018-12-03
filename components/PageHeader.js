@@ -10,7 +10,7 @@ export default class PageHeader extends React.Component {
     const { children, ...rest } = this.props
     return (
       <div { ...rest } className='text-center'>
-        <h1 className='display-4'>{ children }</h1><hr /><br />
+        { children }<hr /><br />
         <style jsx>{`
           h1 {
             text-align: center;
