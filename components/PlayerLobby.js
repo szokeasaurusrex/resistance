@@ -20,7 +20,7 @@ export default class PlayerLobby extends React.Component {
   handleEndGameClick () {
     const confirmed = confirm('Are you sure you want to end the game?')
     if (confirmed) {
-      this.props.socketEmmitter('deleteGame')
+      this.props.socketEmmitter('deleteGame', null, 'Ending game')
     }
   }
   handleEditClick () {
@@ -33,13 +33,15 @@ export default class PlayerLobby extends React.Component {
     if (newName != null) {
       this.props.socketEmmitter('changeName', {
         newName: newName
-      })
+      }, 'Changing name')
     }
   }
   handleRemoveClick (playerToRemove) {
-    this.props.socketEmmitter('removalRequest', playerToRemove)
+    this.props.socketEmmitter('removalRequest', playerToRemove,
+      'Removing player')
   }
   render () {
+    const gameCodeLength = 6
     const {
       children,
       gameCode,
@@ -56,7 +58,10 @@ export default class PlayerLobby extends React.Component {
     return (
       <div {...rest}>
         <p className='lead'>Game code: { displayCode }</p>
-        <p>{players.length} players joined</p>
+        { players.length === 1
+          ? <p>1 player joined</p>
+          : <p>{players.length} players joined</p>
+        }
         <Table striped>
           <thead>
             <tr>
@@ -102,8 +107,9 @@ export default class PlayerLobby extends React.Component {
           </Col>
           <Col lg='6' xs='2' />
           <Col lg='3' sm='5'>
-            <Button color='success' size='lg' block disabled>
-              Play game <FontAwesomerIcon icon={faArrowRight} />
+            <Button color='success' size='lg' block
+              disabled={players.length < 5} onClick={this.handleRoundStart}>
+              Start game <FontAwesomerIcon icon={faArrowRight} />
             </Button>
           </Col>
         </Row>

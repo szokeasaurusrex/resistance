@@ -1,7 +1,6 @@
 'use strict'
 
 import React from 'react'
-import { Container, Row, Col } from 'reactstrap'
 
 export default class Overlay extends React.Component {
   render () {
@@ -24,12 +23,12 @@ export default class Overlay extends React.Component {
           .overlay-content {
             position: absolute;
             text-align: center;
+            width: 100vw;
             left: 50%;
             top: 40%;
             transform: translate(-50%, -50%);
             background-color: #ffffff;
             padding: 2em 4em;
-            border-radius: 5px;
           }
         `}</style>
       </div>

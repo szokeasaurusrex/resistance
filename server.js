@@ -352,6 +352,7 @@ async function runApp () {
           }
           roomAll = io.to(roomAllName)
           roomAll.emit('gameStatus', await getGameStatus(gameDb))
+          socket.emit('actionCompleted')
         } catch (e) {
           handleSocketError(e, socket)
         }
@@ -366,6 +367,7 @@ async function runApp () {
             delete sockets[player.gameCode][oldName]
             socket.emit('nameChanged', msg)
             roomAll.emit('gameStatus', await getGameStatus(gameDb))
+            socket.emit('actionCompleted')
           } catch (e) {
             handleSocketError(e, socket)
           }
@@ -388,6 +390,7 @@ async function runApp () {
               delete sockets[player.gameCode]
             } else {
               roomAll.emit('gameStatus', await getGameStatus(gameDb))
+              socket.emit('actionCompleted')
             }
           } catch (e) {
             handleSocketError(e, socket)

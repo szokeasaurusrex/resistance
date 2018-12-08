@@ -5,6 +5,8 @@
 import React from 'react'
 import PageLayout from '../components/PageLayout.js'
 import PageHeader from '../components/PageHeader.js'
+import Overlay from '../components/Overlay.js'
+import Spinner from '../components/Spinner.js'
 import io from 'socket.io-client'
 import Router from 'next/router'
 import PlayerLobby from '../components/PlayerLobby.js'
@@ -17,7 +19,8 @@ export default class Game extends React.Component {
       show: [],
       gameInProgress: false,
       gameCode: '',
-      players: []
+      players: [],
+      loadMessage: ''
     }
     this.socketEmmitter = this.socketEmmitter.bind(this)
   }
@@ -25,8 +28,13 @@ export default class Game extends React.Component {
     e.preventDefault()
     e.returnValue = ''
   }
-  socketEmmitter (event, message) {
+  socketEmmitter (event, message, loadMessage) {
     this.socket.emit(event, message)
+    if (loadMessage) {
+      this.setState({
+        loadMessage: loadMessage + '...'
+      })
+    }
   }
   componentDidMount () {
     if (sessionStorage.authKey) {
@@ -43,6 +51,9 @@ export default class Game extends React.Component {
 
       this.socket.on('myError', error => {
         console.error(error)
+        this.setState({
+          loadMessage: ''
+        })
         alert(error.message)
         if (error.type === 'authError') {
           sessionStorage.removeItem('authKey')
@@ -58,6 +69,10 @@ export default class Game extends React.Component {
           })
         }
       })
+
+      this.socket.on('actionCompleted', () => this.setState({
+        loadMessage: ''
+      }))
 
       this.socket.on('nameChanged', msg => {
         this.player.name = msg.newName
@@ -85,13 +100,22 @@ export default class Game extends React.Component {
     return (
       <PageLayout title='Resistance'>
         <PageHeader>{this.state.header}</PageHeader>
-        <PlayerLobby
-          hidden={this.state.gameInProgress}
-          gameCode={this.state.gameCode}
-          players={this.state.players}
-          myPlayer={this.player}
-          socketEmmitter={this.socketEmmitter}
-        />
+        { !this.state.gameInProgress &&
+          <PlayerLobby
+            gameCode={this.state.gameCode}
+            players={this.state.players}
+            myPlayer={this.player}
+            socketEmmitter={this.socketEmmitter}
+          />
+        }
+
+        { this.state.loadMessage !== '' &&
+          <Overlay>
+            <h5>{ this.state.loadMessage }</h5>
+            <br />
+            <Spinner />
+          </Overlay>
+        }
 
       </PageLayout>
     )
