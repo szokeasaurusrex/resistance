@@ -4,7 +4,7 @@
   "description": "Online multiplayer implementation of resistance game",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --ignore components/ --ignore pages/ --ignore .next/ server.js",
+    "dev": "nodemon --inspect --ignore components/ --ignore pages/ --ignore .next/ server.js",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
     "inspect": "node --inspect server.js"
