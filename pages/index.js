@@ -62,11 +62,13 @@ export default class Index extends React.Component {
       }
       sessionStorage.authKey = JSON.stringify(responseData)
       Router.push('/game')
+      return true
     } catch (e) {
       alert('Error: ' + e.message)
       if (e.name !== 'UserException') {
         console.error(e)
       }
+      return false
     }
   }
   backToHome () {
