@@ -15,14 +15,11 @@ export default class Index extends React.Component {
     super(props)
     this.state = {
       header: 'Resistance',
-      show: []
+      show: ['home']
     }
     this.handleCreate = this.handleCreate.bind(this)
     this.handleJoin = this.handleJoin.bind(this)
     this.backToHome = this.backToHome.bind(this)
-  }
-  componentDidMount () {
-    this.backToHome()
   }
   showing (componentName) {
     return this.state.show.includes(componentName)

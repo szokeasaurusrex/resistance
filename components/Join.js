@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Form, FormGroup, Button, Input, Label, Row, Col } from 'reactstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import FontAwesomerIcon from '../components/FontAwesomerIcon.js'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export default class Create extends React.Component {
@@ -24,14 +24,14 @@ export default class Create extends React.Component {
           <Col md='4'>
             <Button type='button' color='secondary' size='lg' block
               onClick={onClickBack}>
-              <FontAwesomeIcon icon={faArrowLeft} /> Back
+              <FontAwesomerIcon icon={faArrowLeft} /> Back
             </Button>
             <br />
           </Col>
           <Col md='4' />
           <Col md='4'>
             <Button color='primary' size='lg' block>
-              Join game <FontAwesomeIcon icon={faArrowRight} />
+              Join game <FontAwesomerIcon icon={faArrowRight} />
             </Button>
             <br />
           </Col>
