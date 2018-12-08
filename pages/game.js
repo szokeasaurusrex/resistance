@@ -49,6 +49,12 @@ export default class Game extends React.Component {
         this.socket.emit('authRequest', this.player)
       })
 
+      this.socket.on('disconnect', () => {
+        this.setState({
+          loadMessage: 'Offline. Attemting to reconnect...'
+        })
+      })
+
       this.socket.on('myError', error => {
         console.error(error)
         this.setState({
