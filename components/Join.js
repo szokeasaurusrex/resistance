@@ -60,7 +60,7 @@ export default class Create extends React.Component {
 
         { this.state.loading &&
           <Overlay>
-            <h5>Joining game...</h5>
+            <h6>Joining game...</h6>
             <br />
             <Spinner />
           </Overlay>

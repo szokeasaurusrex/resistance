@@ -117,7 +117,7 @@ export default class Game extends React.Component {
 
         { this.state.loadMessage !== '' &&
           <Overlay>
-            <h5>{ this.state.loadMessage }</h5>
+            <h6>{ this.state.loadMessage }</h6>
             <br />
             <Spinner />
           </Overlay>

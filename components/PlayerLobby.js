@@ -111,6 +111,7 @@ export default class PlayerLobby extends React.Component {
               disabled={players.length < 5} onClick={this.handleRoundStart}>
               Start game <FontAwesomerIcon icon={faArrowRight} />
             </Button>
+            <br />
           </Col>
         </Row>
 
