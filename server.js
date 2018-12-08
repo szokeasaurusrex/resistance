@@ -12,8 +12,7 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
-const maxGameCode = 1000000 // noninclusive
-const minGameCode = 0 // inclusive
+const gameCodeLength = 6
 const mongoUrl = 'mongodb://localhost:27017'
 
 class UserException extends Error {
@@ -66,9 +65,7 @@ async function createGame (db, gamesCollection) {
   }
   let gameCode
   do {
-    gameCode = (
-      Math.floor(Math.random() * (maxGameCode - minGameCode)) + minGameCode
-    )
+    gameCode = Math.floor(Math.random() * (10 ** gameCodeLength))
   } while (await gamesCollection.findOne({ code: gameCode }))
   await Promise.all([
     db.db('game-' + gameCode).collection('status').insertOne({
@@ -90,20 +87,24 @@ async function joinGame (db, name, gameCode, gamesCollection) {
     throw new UserException('Max name length is 20 characters')
   }
 
-  // Validate gameCode
-  if (gameCode != null && (gameCode < minGameCode ||
-      gameCode >= maxGameCode)) {
-    throw new UserException(`Game code must be integer between
-          ${minGameCode} (inclusive) and ${maxGameCode} (exclusive).`)
+  if (gameCode == null) {
+    // Create game if doesn't exist
+    gameCode = await createGame(db, gamesCollection)
+  } else {
+    // Validate gameCode
+    gameCode = +(gameCode.replace(' ', ''))
+    if (('' + gameCode).length > gameCodeLength ||
+      !Number.isInteger(gameCode) || gameCode < 0) {
+      throw new UserException(
+        `Game code must be ${gameCodeLength} digit number.`
+      )
+    }
   }
-
-  // Create game if doesn't exist
-  gameCode = gameCode || await createGame(db, gamesCollection)
 
   const gameDb = db.db('game-' + gameCode)
 
   const validationDocs = await Promise.all([
-    gamesCollection.findOne({ code: parseInt(gameCode) }),
+    gamesCollection.findOne({ code: gameCode }),
     gameDb.collection('status').findOne({}),
     gameDb.collection('players').findOne({ name: name }),
     gameDb.collection('players').find({}).toArray()
@@ -359,7 +360,10 @@ async function runApp () {
       socket.on('changeName', async msg => {
         if (player.authenticated) {
           try {
+            const oldName = player.name
             player.name = await changeName(gameDb, player.name, msg.newName)
+            sockets[player.gameCode][player.name] = socket
+            delete sockets[player.gameCode][oldName]
             socket.emit('nameChanged', msg)
             roomAll.emit('gameStatus', await getGameStatus(gameDb))
           } catch (e) {
@@ -375,9 +379,11 @@ async function runApp () {
               playerToRemove)
             roomAll.emit('removedPlayer', result.playerToRemove)
             const removedSocket = sockets[player.gameCode][playerToRemove.name]
-            removedSocket.emit('kicked')
-            removedSocket.disconnect()
-            delete sockets[player.gameCode][playerToRemove.name]
+            if (removedSocket) {
+              removedSocket.emit('kicked')
+              removedSocket.disconnect()
+              delete sockets[player.gameCode][playerToRemove.name]
+            }
             if (Object.keys(sockets[player.gameCode]).length === 0) {
               delete sockets[player.gameCode]
             } else {

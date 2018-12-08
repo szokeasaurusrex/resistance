@@ -49,9 +49,14 @@ export default class PlayerLobby extends React.Component {
       socketEmmitter,
       ...rest
     } = this.props
+    let displayCode = gameCode + ''
+    while (displayCode.length < gameCodeLength) {
+      displayCode = '0' + displayCode
+    }
     return (
       <div {...rest}>
-        <p className='lead'>Game code: { gameCode }</p>
+        <p className='lead'>Game code: { displayCode }</p>
+        <p>{players.length} players joined</p>
         <Table striped>
           <thead>
             <tr>
