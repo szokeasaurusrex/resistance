@@ -1,17 +1,17 @@
 'use strict'
 
+/* global fetch, sessionStorage, alert */
+
 import React from 'react'
-import { Row, Col, Button } from 'reactstrap'
 import Router from 'next/router'
 import PageLayout from '../components/PageLayout.js'
 import PageHeader from '../components/PageHeader.js'
 import Home from '../components/Home.js'
 import Create from '../components/Create.js'
 import Join from '../components/Join.js'
-import io from 'socket.io-client'
 
 export default class Index extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       header: 'Resistance',
@@ -21,28 +21,25 @@ export default class Index extends React.Component {
     this.handleJoin = this.handleJoin.bind(this)
     this.backToHome = this.backToHome.bind(this)
   }
-  componentDidMount() {
-    // if (sesssionStrorage.authKey) {
-    //   Router.push('/game')
-    // }
+  componentDidMount () {
     this.backToHome()
   }
-  hidden(componentName) {
+  hidden (componentName) {
     return !this.state.show.includes(componentName)
   }
-  handleCreate() {
+  handleCreate () {
     this.setState({
       show: ['create'],
       header: 'Create Game'
     })
   }
-  handleJoin() {
+  handleJoin () {
     this.setState({
       show: ['join'],
       header: 'Join Game'
     })
   }
-  async handleCreateJoinSubmit(event) {
+  async handleCreateJoinSubmit (event) {
     try {
       event.preventDefault()
       const form = event.target
@@ -70,32 +67,32 @@ export default class Index extends React.Component {
       Router.push('/game')
     } catch (e) {
       alert('Error: ' + e.message)
-      if (e.name != 'UserException') {
+      if (e.name !== 'UserException') {
         console.error(e)
       }
     }
   }
-  backToHome() {
+  backToHome () {
     this.setState({
       header: 'Resistance',
       show: ['home']
     })
   }
-  render() {
+  render () {
     return (
       <PageLayout title='Resistance'>
         <PageHeader>
           <h1 className='display-4'>{ this.state.header }</h1>
         </PageHeader>
-        <Home onClickCreate={ this.handleCreate }
-          onClickJoin={ this.handleJoin }
-          hidden={ this.hidden('home') } />
-        <Create onSubmit={ this.handleCreateJoinSubmit }
-          onClickBack={ this.backToHome }
-          hidden={ this.hidden('create')} />
-        <Join onSubmit={ this.handleCreateJoinSubmit }
-          onClickBack={ this.backToHome }
-          hidden={ this.hidden('join') } />
+        <Home onClickCreate={this.handleCreate}
+          onClickJoin={this.handleJoin}
+          hidden={this.hidden('home')} />
+        <Create onSubmit={this.handleCreateJoinSubmit}
+          onClickBack={this.backToHome}
+          hidden={this.hidden('create')} />
+        <Join onSubmit={this.handleCreateJoinSubmit}
+          onClickBack={this.backToHome}
+          hidden={this.hidden('join')} />
 
         <style jsx>{`
           .hidden {

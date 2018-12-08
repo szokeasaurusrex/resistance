@@ -6,14 +6,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export default class Create extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.formRef = React.createRef()
   }
-  render() {
+  render () {
     const { children, onSubmit, onClickBack, ...rest } = this.props
     return (
-      <Form { ...rest } onSubmit={ onSubmit } ref={ this.formRef }>
+      <Form {...rest} onSubmit={onSubmit} ref={this.formRef}>
         <FormGroup>
           <Label for='name'>Name:</Label>
           <Input type='text' name='name' id='name-input'
@@ -22,15 +22,15 @@ export default class Create extends React.Component {
         <Row>
           <Col md='4'>
             <Button type='button' color='secondary' size='lg' block
-              onClick={ onClickBack }>
-              <FontAwesomeIcon icon={ faArrowLeft } /> Back
+              onClick={onClickBack}>
+              <FontAwesomeIcon icon={faArrowLeft} /> Back
             </Button>
             <br />
           </Col>
           <Col md='4' />
           <Col md='4'>
             <Button color='primary' size='lg' block>
-              Create game <FontAwesomeIcon icon={ faArrowRight } />
+              Create game <FontAwesomeIcon icon={faArrowRight} />
             </Button>
             <br />
           </Col>

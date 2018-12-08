@@ -3,13 +3,10 @@
 import React from 'react'
 
 export default class PageHeader extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-  render() {
+  render () {
     const { children, ...rest } = this.props
     return (
-      <div { ...rest } className='text-center'>
+      <div {...rest} className='text-center'>
         { children }<hr /><br />
         <style jsx>{`
           h1 {

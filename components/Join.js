@@ -6,13 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export default class Create extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-  render() {
+  render () {
     const { children, onSubmit, onClickBack, ...rest } = this.props
     return (
-      <Form { ...rest } onSubmit={ onSubmit }>
+      <Form {...rest} onSubmit={onSubmit}>
         <FormGroup>
           <Label for='code'>Game code:</Label>
           <Input type='number' name='code' id='game-code-input'
@@ -26,15 +23,15 @@ export default class Create extends React.Component {
         <Row>
           <Col md='4'>
             <Button type='button' color='secondary' size='lg' block
-              onClick={ onClickBack }>
-              <FontAwesomeIcon icon={ faArrowLeft } /> Back
+              onClick={onClickBack}>
+              <FontAwesomeIcon icon={faArrowLeft} /> Back
             </Button>
             <br />
           </Col>
           <Col md='4' />
           <Col md='4'>
             <Button color='primary' size='lg' block>
-              Join game <FontAwesomeIcon icon={ faArrowRight } />
+              Join game <FontAwesomeIcon icon={faArrowRight} />
             </Button>
             <br />
           </Col>

@@ -6,17 +6,14 @@ import { Container } from 'reactstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 export default class PageLayout extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-  render() {
+  render () {
     const { title, children, ...rest } = this.props
     return (
-      <div { ...rest }>
+      <div {...rest}>
         <Head>
-          <title>{ title }</title>
-          <meta name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+          <title>{title}</title>
+          <meta name='viewport'
+            content='width=device-width, initial-scale=1, shrink-to-fit=no' />
         </Head>
         <Container>
           { children }
