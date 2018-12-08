@@ -83,6 +83,23 @@ async function createGame (db, gamesCollection) {
 }
 
 async function joinGame (db, name, gameCode, gamesCollection) {
+  // Validate name
+  if (name == null || name === '') {
+    throw new UserException('Must enter a name')
+  } else if (name.length > 20) {
+    throw new UserException('Max name length is 20 characters')
+  }
+
+  // Validate gameCode
+  if (gameCode != null && (gameCode < minGameCode ||
+      gameCode >= maxGameCode)) {
+    throw new UserException(`Game code must be integer between
+          ${minGameCode} (inclusive) and ${maxGameCode} (exclusive).`)
+  }
+
+  // Create game if doesn't exist
+  gameCode = gameCode || await createGame(db, gamesCollection)
+
   const gameDb = db.db('game-' + gameCode)
 
   const validationDocs = await Promise.all([
@@ -108,6 +125,7 @@ async function joinGame (db, name, gameCode, gamesCollection) {
   await gameDb.collection('players').insertOne({
     name: name,
     gameCode: gameCode,
+    hasConnected: false,
     order: validationDocs[3].length + 1,
     hashedKey: hash.digest('hex')
   })
@@ -138,7 +156,7 @@ async function authUser (gameDb, gamesCollection, socketClientId, authKey) {
   }
   await gameDb.collection('players').updateOne(query, {
     $set: {
-      socketClientId: socketClientId
+      hasConnected: true
     }
   })
   const hash = crypto.createHash('sha256')
@@ -154,7 +172,8 @@ async function authUser (gameDb, gamesCollection, socketClientId, authKey) {
   }
 }
 
-async function getGameStatus (gameDb) {
+async function getGameStatus (gameDb, player) {
+  player = player || ''
   try {
     const gameInfo = await Promise.all([
       gameDb.collection('status').findOne({}),
@@ -252,25 +271,6 @@ async function runApp () {
         const { playerName } = req.body
         let { gameCode } = req.body
 
-        // Validate playerName
-        if (playerName == null || playerName === '') {
-          throw new UserException('Must enter a name')
-        } else if (playerName.length > 20) {
-          throw new UserException('Max name length is 20 characters')
-        }
-
-        // Validate gameCode
-        if (gameCode != null && (gameCode < minGameCode ||
-            gameCode >= maxGameCode)) {
-          throw new UserException(`Game code must be integer between
-                ${minGameCode} (inclusive) and ${maxGameCode} (exclusive).`)
-        }
-
-        // Create game if doesn't exist
-        if (gameCode == null) {
-          gameCode = await createGame(db, gamesCollection)
-        }
-
         // Join game, send name and key to client
         res.json(await joinGame(db, playerName, gameCode, gamesCollection))
       } catch (e) {
@@ -346,6 +346,9 @@ async function runApp () {
             sockets[player.gameCode] = {}
           }
           sockets[player.gameCode][player.name] = socket
+          if (player.hasConnected) {
+            socket.emit('gameStatus', await getGameStatus(gameDb))
+          }
           roomAll = io.to(roomAllName)
           roomAll.emit('gameStatus', await getGameStatus(gameDb))
         } catch (e) {
