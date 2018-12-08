@@ -41,15 +41,13 @@ export default class Game extends React.Component {
       this.socket.on('myError', error => {
         console.error(error)
         alert(error.message)
-        if (error.type === 'authError' &&
-            process.env.NODE_ENV === 'production') {
+        if (error.type === 'authError') {
           sessionStorage.removeItem('authKey')
           Router.push('/')
         }
       })
 
       this.socket.on('gameStatus', status => {
-        console.log(status)
         if (!status.playing) {
           this.setState({
             players: status.players,
@@ -63,16 +61,12 @@ export default class Game extends React.Component {
         sessionStorage.authKey = JSON.stringify(this.player)
       })
 
-      this.socket.on('removedPlayer', playerRemoved => {
-        if (playerRemoved.name === this.player.name) {
-          sessionStorage.removeItem('authKey')
-          Router.push('/')
-        }
+      this.socket.on('kicked', () => {
+        sessionStorage.removeItem('authKey')
+        Router.push('/')
       })
 
-      if (process.env.NODE_ENV === 'production') {
-        window.addEventListener('beforeunload', this.handleUnload)
-      }
+      window.addEventListener('beforeunload', this.handleUnload)
     } else {
       Router.push('/')
     }
@@ -82,9 +76,7 @@ export default class Game extends React.Component {
       this.socket.disconnect()
       delete this.socket
     }
-    if (process.env.NODE_ENV === 'production') {
-      window.removeEventListener('beforeunload', this.handleUnload)
-    }
+    window.removeEventListener('beforeunload', this.handleUnload)
   }
   render () {
     return (

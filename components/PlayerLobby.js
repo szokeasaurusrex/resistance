@@ -1,24 +1,35 @@
 'use strict'
 
+/* global confirm */
+
 import React from 'react'
-import { Table, Button } from 'reactstrap'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes, faPencilAlt } from '@fortawesome/free-solid-svg-icons'
+import { Table, Button, Row, Col } from 'reactstrap'
+import FontAwesomerIcon from '../components/FontAwesomerIcon.js'
+import { faTimes,
+  faPencilAlt,
+  faTrashAlt,
+  faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export default class PlayerLobby extends React.Component {
   constructor (props) {
     super(props)
     this.handleEditClick = this.handleEditClick.bind(this)
     this.handleRemoveClick = this.handleRemoveClick.bind(this)
+    this.handleEndGameClick = this.handleEndGameClick.bind(this)
+  }
+  handleEndGameClick () {
+    const confirmed = confirm('Are you sure you want to end the game?')
+    if (confirmed) {
+      this.props.socketEmmitter('deleteGame')
+    }
   }
   handleEditClick () {
     let newName = ''
     do {
       newName = window.prompt('Enter a new name:')
-      if (newName === null) {
-        break
-      }
-    } while (newName === '' || newName === this.props.myPlayer.name)
+    } while (newName !== null &&
+      (newName === '' || newName === this.props.myPlayer.name))
+
     if (newName != null) {
       this.props.socketEmmitter('changeName', {
         newName: newName
@@ -61,21 +72,36 @@ export default class PlayerLobby extends React.Component {
                 <td nowrap='true' className='text-align-right'>
                   { player.name === myPlayer.name &&
                     <span className='edit-btn-container'>
-                      <Button color='success' onClick={this.handleEditClick}>
-                        <FontAwesomeIcon icon={faPencilAlt} />
+                      <Button color='primary' onClick={this.handleEditClick}>
+                        <FontAwesomerIcon icon={faPencilAlt} />
                       </Button>
                     </span>
                   }
                   <Button color='danger' onClick={
                     () => this.handleRemoveClick(player)
                   }>
-                    <FontAwesomeIcon icon={faTimes} />
+                    <FontAwesomerIcon icon={faTimes} />
                   </Button>
                 </td>
               </tr>
             ) }
           </tbody>
         </Table>
+        <Row>
+          <Col lg='3' sm='5'>
+            <Button color='danger' size='lg' block
+              onClick={this.handleEndGameClick}>
+              <FontAwesomerIcon icon={faTrashAlt} /> End game
+            </Button>
+            <br />
+          </Col>
+          <Col lg='6' xs='2' />
+          <Col lg='3' sm='5'>
+            <Button color='success' size='lg' block disabled>
+              Play game <FontAwesomerIcon icon={faArrowRight} />
+            </Button>
+          </Col>
+        </Row>
 
         <style jsx>{`
           .text-align-right {

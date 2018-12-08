@@ -50,6 +50,9 @@ function randomBytesHexAsync (size) {
 function handleSocketError (e, socket) {
   if (e instanceof UserException) {
     socket.emit('myError', e)
+    if (e.type === 'authError') {
+      socket.disconnect()
+    }
   } else {
     console.error(e)
     socket.emit('myError', new UserException('An unexpected error occurred'))
@@ -70,8 +73,7 @@ async function createGame (db, gamesCollection) {
   await Promise.all([
     db.db('game-' + gameCode).collection('status').insertOne({
       playing: false,
-      lastSignificantChange: new Date()
-      // Significant changes are creating game, strating round, ending round
+      lastGameStart: new Date()
     }),
     gamesCollection.insertOne({
       code: gameCode
@@ -105,6 +107,7 @@ async function joinGame (db, name, gameCode, gamesCollection) {
   hash.update(key)
   await gameDb.collection('players').insertOne({
     name: name,
+    gameCode: gameCode,
     order: validationDocs[3].length + 1,
     hashedKey: hash.digest('hex')
   })
@@ -116,8 +119,7 @@ async function joinGame (db, name, gameCode, gamesCollection) {
   }
 }
 
-async function authUser (db, socketClientId, authKey) {
-  const gamesCollection = db.db('games').collection('games')
+async function authUser (gameDb, gamesCollection, socketClientId, authKey) {
   const query = { code: parseInt(authKey.gameCode) }
   if (!(await gamesCollection.findOne(query))) {
     throw new UserException(
@@ -125,7 +127,6 @@ async function authUser (db, socketClientId, authKey) {
       'authError'
     )
   }
-  const gameDb = db.db('game-' + authKey.gameCode)
   const player = await gameDb.collection('players').findOne({
     name: authKey.name
   })
@@ -201,7 +202,7 @@ async function changeName (gameDb, currentName, newName) {
   return newName
 }
 
-async function removePlayer (db, gameDb, playerToRemove) {
+async function removePlayer (gameDb, gamesCollection, playerToRemove) {
   const mongoCommands = await Promise.all([
     gameDb.collection('status').findOne({}),
     gameDb.collection('players').findOne({
@@ -220,7 +221,7 @@ async function removePlayer (db, gameDb, playerToRemove) {
   if (players.length === 0) {
     await Promise.all([
       gameDb.dropDatabase(),
-      db.db('games').collection('games').deleteOne({
+      gamesCollection.deleteOne({
         code: playerToRemove.gameCode
       })
     ])
@@ -239,6 +240,7 @@ async function runApp () {
     server.use(bodyParser.json())
 
     const db = await MongoClient.connect(mongoUrl, { useNewUrlParser: true })
+    const gamesCollection = db.db('games').collection('games')
 
     server.get('*', (req, res) => {
       return handle(req, res)
@@ -249,7 +251,6 @@ async function runApp () {
       try {
         const { playerName } = req.body
         let { gameCode } = req.body
-        const gamesCollection = db.db('games').collection('games')
 
         // Validate playerName
         if (playerName == null || playerName === '') {
@@ -293,7 +294,6 @@ async function runApp () {
     const msToLive = process.env.NODE_ENV === 'production' ? 86400000 : 1800000
     setInterval(async () => {
       try {
-        const gamesCollection = db.db('games').collection('games')
         const games = await gamesCollection.find({}).toArray()
         const gameStatuses = await Promise.all(
           Array.from(games, game => new Promise(async (resolve, reject) => {
@@ -314,7 +314,7 @@ async function runApp () {
         const currentDate = new Date()
         gameStatuses.forEach(game => {
           const shouldDie = (!game.status ||
-            currentDate - game.status.lastSignificantChange > msToLive)
+            currentDate - game.status.lastGameStart > msToLive)
           if (shouldDie) {
             dropCommands.push(db.db('game-' + game.code).dropDatabase())
             dropCommands.push(gamesCollection.deleteOne({ code: game.code }))
@@ -327,6 +327,7 @@ async function runApp () {
       }
     }, msToLive)
 
+    const sockets = {}
     io.on('connection', socket => {
       let player = {
         authenticated: false
@@ -335,11 +336,16 @@ async function runApp () {
 
       socket.on('authRequest', async authKey => {
         try {
-          const authReply = await authUser(db, socket.client.id, authKey)
+          gameDb = db.db('game-' + authKey.gameCode)
+          const authReply = await authUser(gameDb, gamesCollection,
+            socket.client.id, authKey)
           player = authReply
-          gameDb = db.db('game-' + player.gameCode)
           const roomAllName = `game-${player.gameCode}-all`
           socket.join(roomAllName)
+          if (!sockets[player.gameCode]) {
+            sockets[player.gameCode] = {}
+          }
+          sockets[player.gameCode][player.name] = socket
           roomAll = io.to(roomAllName)
           roomAll.emit('gameStatus', await getGameStatus(gameDb))
         } catch (e) {
@@ -362,10 +368,36 @@ async function runApp () {
       socket.on('removalRequest', async playerToRemove => {
         if (player.authenticated) {
           try {
-            const result = await removePlayer(db, gameDb, playerToRemove)
-            io.to(result.socketClientId).disconnect()
+            const result = await removePlayer(gameDb, gamesCollection,
+              playerToRemove)
             roomAll.emit('removedPlayer', result.playerToRemove)
-            roomAll.emit('gameStatus', await getGameStatus(gameDb))
+            const removedSocket = sockets[player.gameCode][playerToRemove.name]
+            removedSocket.emit('kicked')
+            removedSocket.disconnect()
+            delete sockets[player.gameCode][playerToRemove.name]
+            if (Object.keys(sockets[player.gameCode]).length === 0) {
+              delete sockets[player.gameCode]
+            } else {
+              roomAll.emit('gameStatus', await getGameStatus(gameDb))
+            }
+          } catch (e) {
+            handleSocketError(e, socket)
+          }
+        }
+      })
+
+      socket.on('deleteGame', async () => {
+        if (player.authenticated) {
+          try {
+            await Promise.all([
+              gameDb.dropDatabase(),
+              gamesCollection.removeOne({ code: player.gameCode })
+            ])
+            roomAll.emit('kicked')
+            for (const playerName in sockets[player.gameCode]) {
+              sockets[player.gameCode][playerName].disconnect()
+            }
+            delete sockets[player.gameCode]
           } catch (e) {
             handleSocketError(e, socket)
           }
