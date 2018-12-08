@@ -36,7 +36,10 @@ export default class Game extends React.Component {
       })
 
       this.socket = io()
-      this.socket.emit('authRequest', this.player)
+
+      this.socket.on('connect', () => {
+        this.socket.emit('authRequest', this.player)
+      })
 
       this.socket.on('myError', error => {
         console.error(error)
