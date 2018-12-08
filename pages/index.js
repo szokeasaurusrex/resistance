@@ -24,8 +24,8 @@ export default class Index extends React.Component {
   componentDidMount () {
     this.backToHome()
   }
-  hidden (componentName) {
-    return !this.state.show.includes(componentName)
+  showing (componentName) {
+    return this.state.show.includes(componentName)
   }
   handleCreate () {
     this.setState({
@@ -84,15 +84,17 @@ export default class Index extends React.Component {
         <PageHeader>
           <h1 className='display-4'>{ this.state.header }</h1>
         </PageHeader>
-        <Home onClickCreate={this.handleCreate}
-          onClickJoin={this.handleJoin}
-          hidden={this.hidden('home')} />
-        <Create onSubmit={this.handleCreateJoinSubmit}
-          onClickBack={this.backToHome}
-          hidden={this.hidden('create')} />
-        <Join onSubmit={this.handleCreateJoinSubmit}
-          onClickBack={this.backToHome}
-          hidden={this.hidden('join')} />
+        { this.showing('home') &&
+          <Home onClickCreate={this.handleCreate}
+            onClickJoin={this.handleJoin} /> }
+
+        { this.showing('create') &&
+          <Create onSubmit={this.handleCreateJoinSubmit}
+            onClickBack={this.backToHome} /> }
+
+        { this.showing('join') &&
+          <Join onSubmit={this.handleCreateJoinSubmit}
+            onClickBack={this.backToHome} /> }
 
         <style jsx>{`
           .hidden {
