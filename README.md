@@ -8,4 +8,4 @@ More information about game-play can be found at
 *The Resistance* is designed by Don Eskridge (the Designer) and published by
 Indie Boards & Cards (the Publisher). This software is an unofficial fan
 project. The developers of this software are in no way affiliated with, and this
-software is in no way endorsed, by the Designer or the Publisher.
+software is in no way endorsed by, the Designer or the Publisher.
