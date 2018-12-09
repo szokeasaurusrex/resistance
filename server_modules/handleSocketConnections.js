@@ -17,20 +17,20 @@ function handleSocketConnections (io) {
     let player = {
       authenticated: false
     }
-    let gameDb, roomAll, gameCode
+    let gameDb, roomAll, gameCode, gameDashCode
 
     socket.on('authRequest', async authKey => {
       try {
         gameCode = authKey.gameCode
-        gameDb = db.db('game-' + gameCode)
+        gameDashCode = 'game-' + gameCode
+        gameDb = db.db(gameDashCode)
         const player = await authUser(gameDb, socket.client.id, authKey)
-        const roomAllName = `game-${gameCode}-all`
-        socket.join(roomAllName)
-        roomAll = io.to(roomAllName)
+        socket.join(gameDashCode)
+        roomAll = io.to(gameDashCode)
         if (!sockets[gameCode]) {
           sockets[gameCode] = {}
         }
-        roomAll = io.to(roomAllName)
+        roomAll = io.to(gameDashCode)
         sockets[gameCode][player.name] = socket
         if (player.hasConnected) {
           socket.emit('gameStatus', await getGameStatus(gameDb))
