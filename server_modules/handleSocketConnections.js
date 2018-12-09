@@ -17,20 +17,21 @@ function handleSocketConnections (io) {
     let player = {
       authenticated: false
     }
-    let gameDb, roomAll
+    let gameDb, roomAll, gameCode
 
     socket.on('authRequest', async authKey => {
       try {
-        gameDb = db.db('game-' + authKey.gameCode)
-        player = await authUser(gameDb, socket.client.id, authKey)
-        const roomAllName = `game-${player.gameCode}-all`
+        gameCode = authKey.gameCode
+        gameDb = db.db('game-' + gameCode)
+        const player = await authUser(gameDb, socket.client.id, authKey)
+        const roomAllName = `game-${gameCode}-all`
         socket.join(roomAllName)
         roomAll = io.to(roomAllName)
-        if (!sockets[player.gameCode]) {
-          sockets[player.gameCode] = {}
+        if (!sockets[gameCode]) {
+          sockets[gameCode] = {}
         }
         roomAll = io.to(roomAllName)
-        sockets[player.gameCode][player.name] = socket
+        sockets[gameCode][player.name] = socket
         if (player.hasConnected) {
           socket.emit('gameStatus', await getGameStatus(gameDb))
         }
@@ -46,8 +47,8 @@ function handleSocketConnections (io) {
         try {
           const oldName = player.name
           player.name = await changeName(gameDb, player.name, msg.newName)
-          sockets[player.gameCode][player.name] = socket
-          delete sockets[player.gameCode][oldName]
+          sockets[gameCode][player.name] = socket
+          delete sockets[gameCode][oldName]
           socket.emit('nameChanged', msg)
           roomAll.emit('gameStatus', await getGameStatus(gameDb))
           socket.emit('actionCompleted')
@@ -62,14 +63,14 @@ function handleSocketConnections (io) {
         try {
           const result = await removePlayer(gameDb, playerToRemove)
           roomAll.emit('removedPlayer', result.playerToRemove)
-          const removedSocket = sockets[player.gameCode][playerToRemove.name]
+          const removedSocket = sockets[gameCode][playerToRemove.name]
           if (removedSocket) {
             removedSocket.emit('kicked')
             removedSocket.disconnect()
-            delete sockets[player.gameCode][playerToRemove.name]
+            delete sockets[gameCode][playerToRemove.name]
           }
-          if (Object.keys(sockets[player.gameCode]).length === 0) {
-            delete sockets[player.gameCode]
+          if (Object.keys(sockets[gameCode]).length === 0) {
+            delete sockets[gameCode]
           } else {
             roomAll.emit('gameStatus', await getGameStatus(gameDb))
             socket.emit('actionCompleted')
@@ -85,13 +86,13 @@ function handleSocketConnections (io) {
         try {
           await Promise.all([
             gameDb.dropDatabase(),
-            gamesCollection.removeOne({ code: player.gameCode })
+            gamesCollection.removeOne({ code: gameCode })
           ])
           roomAll.emit('kicked')
-          for (const playerName in sockets[player.gameCode]) {
-            sockets[player.gameCode][playerName].disconnect()
+          for (const playerName in sockets[gameCode]) {
+            sockets[gameCode][playerName].disconnect()
           }
-          delete sockets[player.gameCode]
+          delete sockets[gameCode]
         } catch (e) {
           handleSocketError(e, socket)
         }

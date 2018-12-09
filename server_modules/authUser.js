@@ -33,8 +33,7 @@ async function authUser (gameDb, socketClientId, authKey) {
   if (hash.digest('hex') === player.hashedKey) {
     return {
       authenticated: true,
-      name: authKey.name,
-      gameCode: authKey.gameCode
+      name: authKey.name
     }
   } else {
     throw new UserException('Unauthorized', 'authError')
