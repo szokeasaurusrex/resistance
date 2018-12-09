@@ -1,8 +1,11 @@
 'use strict'
 
 const UserException = require('./UserException.js')
+const getGamesCollection = require('./db.js').getGamesCollection
 
-async function removePlayer (gameDb, gamesCollection, playerToRemove) {
+async function removePlayer (gameDb, playerToRemove) {
+  const gamesCollection = getGamesCollection()
+
   const mongoCommands = await Promise.all([
     gameDb.collection('status').findOne({}),
     gameDb.collection('players').findOne({

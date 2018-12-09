@@ -1,10 +1,12 @@
 'use strict'
 
-const UserException = require('./UserException.js')
-
 const crypto = require('crypto')
+const UserException = require('./UserException.js')
+const getGamesCollection = require('./db.js').getGamesCollection
 
-async function authUser (gameDb, gamesCollection, socketClientId, authKey) {
+async function authUser (gameDb, socketClientId, authKey) {
+  const gamesCollection = getGamesCollection()
+
   const query = { code: parseInt(authKey.gameCode) }
   if (!(await gamesCollection.findOne(query))) {
     throw new UserException(

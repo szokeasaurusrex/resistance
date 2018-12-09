@@ -29,8 +29,7 @@ async function handleExpressRequests (server) {
       let { gameCode } = req.body
 
       // Join game, send name and key to client
-      const gamesCollection = db.db('games').collection('games')
-      res.json(await joinGame(db, playerName, gameCode, gamesCollection))
+      res.json(await joinGame(db, playerName, gameCode))
     } catch (e) {
       if (e instanceof UserException || dev) {
         res.json({ error: e })

@@ -2,11 +2,12 @@
 
 const constants = require('../constants.js')
 const getDb = require('./db.js').getDb
+const getGamesCollection = require('./db.js').getGamesCollection
 
 function periodicallyDeleteGames () {
   const db = getDb()
+  const gamesCollection = getGamesCollection()
 
-  const gamesCollection = db.db('games').collection('games')
   setInterval(async () => {
     try {
       const games = await gamesCollection.find({}).toArray()

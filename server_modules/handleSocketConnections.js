@@ -1,6 +1,7 @@
 'use strict'
 
 const getDb = require('./db.js').getDb
+const getGamesCollection = require('./db.js').getGamesCollection
 const authUser = require('./authUser.js')
 const getGameStatus = require('./getGameStatus.js')
 const changeName = require('./changeName.js')
@@ -9,8 +10,8 @@ const handleSocketError = require('./handleSocketError.js')
 
 function handleSocketConnections (io) {
   const db = getDb()
+  const gamesCollection = getGamesCollection()
 
-  const gamesCollection = db.db('games').collection('games')
   const sockets = {}
   io.on('connection', socket => {
     let player = {
@@ -21,8 +22,7 @@ function handleSocketConnections (io) {
     socket.on('authRequest', async authKey => {
       try {
         gameDb = db.db('game-' + authKey.gameCode)
-        player = await authUser(gameDb, gamesCollection,
-          socket.client.id, authKey)
+        player = await authUser(gameDb, socket.client.id, authKey)
         const roomAllName = `game-${player.gameCode}-all`
         socket.join(roomAllName)
         roomAll = io.to(roomAllName)
@@ -60,8 +60,7 @@ function handleSocketConnections (io) {
     socket.on('removalRequest', async playerToRemove => {
       if (player.authenticated) {
         try {
-          const result = await removePlayer(gameDb, gamesCollection,
-            playerToRemove)
+          const result = await removePlayer(gameDb, playerToRemove)
           roomAll.emit('removedPlayer', result.playerToRemove)
           const removedSocket = sockets[player.gameCode][playerToRemove.name]
           if (removedSocket) {

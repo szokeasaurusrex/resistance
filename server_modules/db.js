@@ -4,7 +4,7 @@ const assert = require('assert')
 const constants = require('../constants.js')
 const MongoClient = require('mongodb').MongoClient
 
-let db
+let db, gamesCollection
 
 async function initDb () {
   if (db) {
@@ -14,6 +14,7 @@ async function initDb () {
   db = await MongoClient.connect(constants.MONGO_URL, {
     useNewUrlParser: true
   })
+  gamesCollection = db.db('games').collection('games')
 }
 
 function getDb () {
@@ -21,5 +22,12 @@ function getDb () {
   return db
 }
 
+function getGamesCollection () {
+  assert.ok(gamesCollection,
+    'Must init DB before trying to get games collection')
+  return gamesCollection
+}
+
 exports.initDb = initDb
 exports.getDb = getDb
+exports.getGamesCollection = getGamesCollection

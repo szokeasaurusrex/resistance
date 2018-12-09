@@ -1,10 +1,10 @@
 'use strict'
 
+const crypto = require('crypto')
 const UserException = require('./UserException.js')
 const createGame = require('./createGame.js')
 const constants = require('../constants.js')
-
-const crypto = require('crypto')
+const getGamesCollection = require('./db.js').getGamesCollection
 
 function randomBytesHexAsync (size) {
   return new Promise((resolve, reject) => {
@@ -18,7 +18,9 @@ function randomBytesHexAsync (size) {
   })
 }
 
-async function joinGame (db, name, gameCode, gamesCollection) {
+async function joinGame (db, name, gameCode) {
+  const gamesCollection = getGamesCollection()
+
   // Validate name
   if (name == null || name === '') {
     throw new UserException('Must enter a name')
