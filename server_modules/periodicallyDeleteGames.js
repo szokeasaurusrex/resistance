@@ -4,7 +4,7 @@ const constants = require('../constants.js')
 const getDb = require('./db.js').getDb
 const getGamesCollection = require('./db.js').getGamesCollection
 
-function periodicallyDeleteGames () {
+function periodicallyDeleteGames (callback) {
   const db = getDb()
   const gamesCollection = getGamesCollection()
 
@@ -26,18 +26,21 @@ function periodicallyDeleteGames () {
           }
         }))
       )
-      let dropCommands = []
+      const dropCommands = []
+      const deletedGames = []
       const currentDate = new Date()
       gameStatuses.forEach(game => {
         const shouldDie = (!game.status ||
           currentDate - game.status.lastGameStart > constants.GAME_TTL)
         if (shouldDie) {
+          deletedGames.push(game.code)
           dropCommands.push(db.db('game-' + game.code).dropDatabase())
           dropCommands.push(gamesCollection.deleteOne({ code: game.code }))
           console.log('Deleted game ' + game.code)
         }
       })
       await Promise.all(dropCommands)
+      callback(deletedGames)
     } catch (e) {
       console.error(e)
     }

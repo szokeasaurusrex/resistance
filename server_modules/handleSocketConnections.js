@@ -7,6 +7,8 @@ const getGameStatus = require('./getGameStatus.js')
 const changeName = require('./changeName.js')
 const removePlayer = require('./removePlayer.js')
 const handleSocketError = require('./handleSocketError.js')
+const periodicallyDeleteGames =
+  require('./server_modules/periodicallyDeleteGames.js')
 
 function handleSocketConnections (io) {
   const db = getDb()
@@ -98,6 +100,12 @@ function handleSocketConnections (io) {
         }
       }
     })
+  })
+
+  periodicallyDeleteGames(deletedGames => {
+    for (const game of deletedGames) {
+      if (sockets[game]) delete sockets[game]
+    }
   })
 }
 

@@ -6,8 +6,6 @@ const io = require('socket.io')(http)
 const initDb = require('./server_modules/db.js').initDb
 const handleExpressRequests =
   require('./server_modules/handleExpressRequests')
-const periodicallyDeleteGames =
-  require('./server_modules/periodicallyDeleteGames.js')
 const handleSocketConnections =
   require('./server_modules/handleSocketConnections.js')
 
@@ -16,8 +14,6 @@ async function runApp () {
     await initDb()
 
     await handleExpressRequests(server)
-
-    periodicallyDeleteGames()
 
     handleSocketConnections(io)
 
