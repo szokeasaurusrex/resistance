@@ -86,12 +86,13 @@ export default class PlayerLobby extends React.Component {
                 <td nowrap='true' className='text-align-right'>
                   { player.name === myPlayer.name &&
                     <span className='edit-btn-container'>
-                      <Button color='primary' onClick={this.handleEditClick}>
+                      <Button color='primary' size='sm'
+                        onClick={this.handleEditClick}>
                         <FontAwesomerIcon icon={faPencilAlt} />
                       </Button>
                     </span>
                   }
-                  <Button color='danger' onClick={
+                  <Button color='danger' size='sm' onClick={
                     () => this.handleRemoveClick(player)
                   }>
                     <FontAwesomerIcon icon={faTimes} />
