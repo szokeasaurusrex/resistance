@@ -68,7 +68,7 @@ async function joinGame (db, name, gameCode) {
     name: name,
     gameCode: gameCode,
     hasConnected: false,
-    order: validationDocs[3].length + 1,
+    order: playerList.length + 1,
     hashedKey: hash.digest('hex')
   })
 
