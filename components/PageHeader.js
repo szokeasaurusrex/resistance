@@ -4,15 +4,10 @@ import React from 'react'
 
 export default class PageHeader extends React.Component {
   render () {
-    const { children, ...rest } = this.props
+    const { children, centering = true, ...rest } = this.props
     return (
-      <div {...rest} className='text-center'>
+      <div {...rest} className={centering && 'text-center'}>
         { children }<hr /><br />
-        <style jsx>{`
-          h1 {
-            text-align: center;
-          }
-        `}</style>
       </div>
     )
   }

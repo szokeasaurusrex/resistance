@@ -10,6 +10,7 @@ import Spinner from '../components/Spinner.js'
 import io from 'socket.io-client'
 import Router from 'next/router'
 import PlayerLobby from '../components/PlayerLobby.js'
+import GameInProgress from '../components/GameInProgress.js'
 
 export default class Game extends React.Component {
   constructor (props) {
@@ -19,8 +20,9 @@ export default class Game extends React.Component {
       show: [],
       gameInProgress: false,
       gameCode: '',
-      players: [],
-      loadMessage: ''
+      gameStatus: {},
+      loadMessage: '',
+      canHideTeam: true
     }
     this.socketEmmitter = this.socketEmmitter.bind(this)
   }
@@ -37,6 +39,7 @@ export default class Game extends React.Component {
     }
   }
   componentDidMount () {
+    const noTeamHidingTime = 3000
     if (sessionStorage.authKey) {
       this.player = JSON.parse(sessionStorage.authKey)
       this.setState({
@@ -68,12 +71,30 @@ export default class Game extends React.Component {
       })
 
       this.socket.on('gameStatus', status => {
-        if (!status.playing) {
+        if (status.playing) {
           this.setState({
-            players: status.players,
+            gameInProgress: true,
+            gameStatus: status
+          })
+        } else {
+          this.setState({
+            gameStatus: status,
             gameInProgress: false
           })
         }
+      })
+
+      this.socket.on('gameStarted', () => {
+        this.setState({ canHideTeam: false })
+        setTimeout(() => {
+          this.setState({ canHideTeam: true })
+        }, noTeamHidingTime)
+      })
+
+      this.socket.on('loading', loadMessage => {
+        this.setState({
+          loadMessage: loadMessage + '...'
+        })
       })
 
       this.socket.on('actionCompleted', () => this.setState({
@@ -105,14 +126,26 @@ export default class Game extends React.Component {
   render () {
     return (
       <PageLayout title='Resistance'>
-        <PageHeader>{this.state.header}</PageHeader>
-        { !this.state.gameInProgress &&
-          <PlayerLobby
-            gameCode={this.state.gameCode}
-            players={this.state.players}
-            myPlayer={this.player}
-            socketEmmitter={this.socketEmmitter}
-          />
+        { !this.state.gameInProgress
+          ? (
+            <div>
+              <PageHeader>{this.state.header}</PageHeader>
+              <PlayerLobby
+                gameCode={this.state.gameCode}
+                players={this.state.gameStatus.players || []}
+                myPlayer={this.player}
+                socketEmmitter={this.socketEmmitter}
+              />
+            </div>
+          )
+          : (
+            <GameInProgress
+              gameStatus={this.state.gameStatus}
+              canHideTeam={this.state.canHideTeam}
+              myPlayer={this.player}
+              socketEmmitter={this.socketEmmitter}
+            />
+          )
         }
 
         { this.state.loadMessage !== '' &&

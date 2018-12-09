@@ -7,16 +7,17 @@ const getGamesCollection = require('./db.js').getGamesCollection
 async function authUser (gameDb, socketClientId, authKey) {
   const gamesCollection = getGamesCollection()
 
-  const query = { code: parseInt(authKey.gameCode) }
+  let query = { code: parseInt(authKey.gameCode) }
   if (!(await gamesCollection.findOne(query))) {
     throw new UserException(
       'The game you are trying to enter does not exist',
       'authError'
     )
   }
-  const player = await gameDb.collection('players').findOne({
+  query = {
     name: authKey.name
-  })
+  }
+  const player = await gameDb.collection('players').findOne(query)
   if (!player) {
     throw new UserException(
       'You have not yet joined the game properly',
@@ -33,7 +34,8 @@ async function authUser (gameDb, socketClientId, authKey) {
   if (hash.digest('hex') === player.hashedKey) {
     return {
       authenticated: true,
-      name: authKey.name
+      name: authKey.name,
+      hasConnected: player.hasConnected
     }
   } else {
     throw new UserException('Unauthorized', 'authError')

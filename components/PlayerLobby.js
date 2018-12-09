@@ -16,6 +16,10 @@ export default class PlayerLobby extends React.Component {
     this.handleEditClick = this.handleEditClick.bind(this)
     this.handleRemoveClick = this.handleRemoveClick.bind(this)
     this.handleEndGameClick = this.handleEndGameClick.bind(this)
+    this.handleRoundStart = this.handleRoundStart.bind(this)
+  }
+  handleRoundStart () {
+    this.props.socketEmmitter('startRound', null, 'Starting game')
   }
   handleEndGameClick () {
     const confirmed = confirm('Are you sure you want to end the game?')

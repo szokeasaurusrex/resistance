@@ -7,8 +7,9 @@ const getGameStatus = require('./getGameStatus.js')
 const changeName = require('./changeName.js')
 const removePlayer = require('./removePlayer.js')
 const handleSocketError = require('./handleSocketError.js')
-const periodicallyDeleteGames =
-  require('./server_modules/periodicallyDeleteGames.js')
+const startRound = require('./startRound.js')
+const endRound = require('./endRound.js')
+const periodicallyDeleteGames = require('./periodicallyDeleteGames.js')
 
 function handleSocketConnections (io) {
   const db = getDb()
@@ -19,25 +20,27 @@ function handleSocketConnections (io) {
     let player = {
       authenticated: false
     }
-    let gameDb, roomAll, gameCode, gameDashCode
+    let gameDb, roomAll, roomSpies, roomResistance, gameCode, gameDashCode
 
     socket.on('authRequest', async authKey => {
       try {
         gameCode = authKey.gameCode
         gameDashCode = 'game-' + gameCode
         gameDb = db.db(gameDashCode)
-        const player = await authUser(gameDb, socket.client.id, authKey)
+        player = await authUser(gameDb, socket.client.id, authKey)
         socket.join(gameDashCode)
-        roomAll = io.to(gameDashCode)
+        roomAll = gameDashCode
+        roomSpies = gameDashCode + '-spies'
+        roomResistance = gameDashCode + '-resistance'
         if (!sockets[gameCode]) {
           sockets[gameCode] = {}
         }
-        roomAll = io.to(gameDashCode)
         sockets[gameCode][player.name] = socket
         if (player.hasConnected) {
-          socket.emit('gameStatus', await getGameStatus(gameDb))
+          socket.emit('gameStatus', await getGameStatus(gameDb, player.name))
+        } else {
+          io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
         }
-        roomAll.emit('gameStatus', await getGameStatus(gameDb))
         socket.emit('actionCompleted')
       } catch (e) {
         handleSocketError(e, socket)
@@ -52,10 +55,54 @@ function handleSocketConnections (io) {
           sockets[gameCode][player.name] = socket
           delete sockets[gameCode][oldName]
           socket.emit('nameChanged', msg)
-          roomAll.emit('gameStatus', await getGameStatus(gameDb))
+          io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
           socket.emit('actionCompleted')
         } catch (e) {
           handleSocketError(e, socket)
+        }
+      }
+    })
+
+    socket.on('startRound', async () => {
+      if (player.authenticated) {
+        try {
+          socket.broadcast.to(roomAll).emit('loading', 'Starting game')
+          const teams = await startRound(gameDb)
+          for (const spy of teams.spies) {
+            sockets[gameCode][spy].join(gameDashCode + '-spies')
+          }
+          for (const resister of teams.resistance) {
+            sockets[gameCode][resister].join(gameDashCode + '-resistance')
+          }
+          const status = await getGameStatus(gameDb)
+          io.to(roomSpies).emit('gameStatus', status)
+          delete status.spies
+          io.to(roomResistance).emit('gameStatus', status)
+          io.to(roomAll).emit('gameStarted')
+        } catch (e) {
+          handleSocketError(e, socket)
+        } finally {
+          io.to(roomAll).emit('actionCompleted')
+        }
+      }
+    })
+
+    socket.on('endRound', async () => {
+      if (player.authenticated) {
+        try {
+          socket.broadcast.to(roomAll).emit('loading', 'Ending round')
+          const teams = await endRound(gameDb)
+          for (const spy of teams.spies) {
+            sockets[gameCode][spy].leave(gameDashCode + '-spies')
+          }
+          for (const resister of teams.resistance) {
+            sockets[gameCode][resister].leave(gameDashCode + '-resistance')
+          }
+          io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
+        } catch (e) {
+          handleSocketError(e, socket)
+        } finally {
+          io.to(roomAll).emit('actionCompleted')
         }
       }
     })
@@ -64,7 +111,7 @@ function handleSocketConnections (io) {
       if (player.authenticated) {
         try {
           const result = await removePlayer(gameDb, playerToRemove)
-          roomAll.emit('removedPlayer', result.playerToRemove)
+          io.to(roomAll).emit('removedPlayer', result.playerToRemove)
           const removedSocket = sockets[gameCode][playerToRemove.name]
           if (removedSocket) {
             removedSocket.emit('kicked')
@@ -74,7 +121,7 @@ function handleSocketConnections (io) {
           if (Object.keys(sockets[gameCode]).length === 0) {
             delete sockets[gameCode]
           } else {
-            roomAll.emit('gameStatus', await getGameStatus(gameDb))
+            io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
             socket.emit('actionCompleted')
           }
         } catch (e) {
@@ -90,7 +137,7 @@ function handleSocketConnections (io) {
             gameDb.dropDatabase(),
             gamesCollection.removeOne({ code: gameCode })
           ])
-          roomAll.emit('kicked')
+          io.to(roomAll).emit('kicked')
           for (const playerName in sockets[gameCode]) {
             sockets[gameCode][playerName].disconnect()
           }
