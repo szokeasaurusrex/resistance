@@ -44,20 +44,20 @@ async function joinGame (db, name, gameCode) {
 
   const gameDb = db.db('game-' + gameCode)
 
-  const validationDocs = await Promise.all([
+  const [gameExists, gameStatus, playerInGame, playerList] = await Promise.all([
     gamesCollection.findOne({ code: gameCode }),
     gameDb.collection('status').findOne({}),
     gameDb.collection('players').findOne({ name: name }),
     gameDb.collection('players').find({}).toArray()
   ])
-  if (!validationDocs[0]) {
+  if (!gameExists) {
     throw new UserException(`The game ${gameCode} does not exist.`)
-  } else if (validationDocs[1].playing !== false) {
+  } else if (gameStatus.playing !== false) {
     throw new UserException('Cannot join game. It is currently in progress.')
-  } else if (validationDocs[2]) {
+  } else if (playerInGame) {
     throw new UserException(
       'Your chosen name is in use by another player. Please use another name.')
-  } else if (validationDocs[3].length >= 10) {
+  } else if (playerList.length >= 10) {
     throw new UserException('There are already 10 players in this game')
   }
 
