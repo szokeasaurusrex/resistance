@@ -22,6 +22,8 @@ export default class Game extends React.Component {
       gameCode: '',
       gameStatus: {},
       loadMessage: '',
+      draftProposal: [],
+      player: {},
       canHideTeam: true
     }
     this.socketEmmitter = this.socketEmmitter.bind(this)
@@ -41,15 +43,16 @@ export default class Game extends React.Component {
   componentDidMount () {
     const noTeamHidingTime = 3000
     if (sessionStorage.authKey) {
-      this.player = JSON.parse(sessionStorage.authKey)
+      const player = JSON.parse(sessionStorage.authKey)
       this.setState({
-        gameCode: this.player.gameCode
+        player: player,
+        gameCode: player.gameCode
       })
 
       this.socket = io()
 
       this.socket.on('connect', () => {
-        this.socket.emit('authRequest', this.player)
+        this.socket.emit('authRequest', this.state.player)
       })
 
       this.socket.on('disconnect', () => {
@@ -70,12 +73,23 @@ export default class Game extends React.Component {
         }
       })
 
+      this.socket.on('draftProposal', playerList => {
+        this.setState({
+          draftProposal: playerList
+        })
+      })
+
       this.socket.on('gameStatus', status => {
         if (status.playing) {
-          this.setState({
+          console.log(status.spies)
+          this.setState(prevState => ({
             gameInProgress: true,
-            gameStatus: status
-          })
+            gameStatus: status,
+            player: {
+              ...prevState.player,
+              isSpy: (status.spies != null)
+            }
+          }))
         } else {
           this.setState({
             gameStatus: status,
@@ -102,8 +116,13 @@ export default class Game extends React.Component {
       }))
 
       this.socket.on('nameChanged', msg => {
-        this.player.name = msg.newName
-        sessionStorage.authKey = JSON.stringify(this.player)
+        this.setState(prevState => ({
+          player: {
+            ...prevState.player,
+            name: msg.newName
+          }
+        }))
+        sessionStorage.authKey = JSON.stringify(this.state.player)
       })
 
       this.socket.on('kicked', () => {
@@ -133,7 +152,7 @@ export default class Game extends React.Component {
               <PlayerLobby
                 gameCode={this.state.gameCode}
                 players={this.state.gameStatus.players || []}
-                myPlayer={this.player}
+                myPlayer={this.state.player}
                 socketEmmitter={this.socketEmmitter}
               />
             </div>
@@ -142,8 +161,9 @@ export default class Game extends React.Component {
             <GameInProgress
               gameStatus={this.state.gameStatus}
               canHideTeam={this.state.canHideTeam}
-              myPlayer={this.player}
+              myPlayer={this.state.player}
               socketEmmitter={this.socketEmmitter}
+              draftProposal={this.state.draftProposal}
             />
           )
         }

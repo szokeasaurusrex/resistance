@@ -7,12 +7,36 @@ async function startRound (gameDb) {
     gameDb.collection('status').findOne({}),
     gameDb.collection('players').find({}).toArray()
   ])
-  const numPlayers = playerList.length
   if (gameStatus.playing) {
     throw new UserException('Cannot start game. Game is in progress.')
-  } else if (numPlayers < 5 || numPlayers > 10) {
-    throw new UserException('Cannot start game. There must by 5-10 players.')
   }
+
+  const numPlayers = playerList.length
+  const missions = {
+    order: [],
+    includesStarRound: false // Star rounds always occur in mission no. 3.
+  }
+  switch (numPlayers) {
+    case 5:
+      missions.order = [2, 3, 2, 3, 3]
+      break
+    case 6:
+      missions.order = [2, 3, 4, 3, 4]
+      break
+    case 7:
+      missions.order = [2, 3, 3, 4, 4]
+      missions.includesStarRound = true
+      break
+    case 8:
+    case 9:
+    case 10:
+      missions.order = [3, 4, 4, 5, 5]
+      missions.includesStarRound = true
+      break
+    default:
+      throw new UserException('Cannot start game. There must by 5-10 players.')
+  }
+
   const numSpies = Math.ceil(numPlayers / 3)
   const playerNameList = playerList.map(player => player.name)
   const teams = {
@@ -29,8 +53,9 @@ async function startRound (gameDb) {
     lastGameStart: new Date(),
     numPlayers: numPlayers,
     missionChooserIndex: missionChooserIndex,
-    missionFailIndex: (missionChooserIndex + 3) % numPlayers,
+    missionFailIndex: (missionChooserIndex + 2) % numPlayers,
     missionNumber: 0,
+    missions: missions,
     scores: {
       resistance: 0,
       spies: 0
@@ -40,7 +65,6 @@ async function startRound (gameDb) {
     gameDb.collection('teams').insertOne(teams),
     gameDb.collection('status').updateOne({}, { $set: newStatus })
   ])
-  return teams
 }
 
 module.exports = startRound

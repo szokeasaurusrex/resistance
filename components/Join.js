@@ -1,10 +1,10 @@
 'use strict'
 
 import React from 'react'
-import Overlay from '../components/Overlay.js'
-import Spinner from '../components/Spinner.js'
+import Overlay from './Overlay.js'
+import Spinner from './Spinner.js'
 import { Form, FormGroup, Button, Input, Label, Row, Col } from 'reactstrap'
-import FontAwesomerIcon from '../components/FontAwesomerIcon.js'
+import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 
 export default class Create extends React.Component {

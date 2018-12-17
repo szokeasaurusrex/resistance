@@ -5,11 +5,10 @@ import {
   Card,
   CardBody,
   CardTitle,
-  CardText,
   Button,
   Row,
   Col } from 'reactstrap'
-import FontAwesomerIcon from '../components/FontAwesomerIcon.js'
+import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faFistRaised, faUserSecret } from '@fortawesome/free-solid-svg-icons'
 
 export default class TeamInfo extends React.Component {
@@ -33,7 +32,7 @@ export default class TeamInfo extends React.Component {
           { (this.state.showing || !canHideTeam) &&
             <div>
               <CardTitle>
-                { gameStatus.spies
+                { myPlayer.isSpy
                   ? (
                     <p className='lead'>
                       You are a <span className='spy'>
@@ -50,16 +49,16 @@ export default class TeamInfo extends React.Component {
                   )
                 }
               </CardTitle>
-              { gameStatus.spies &&
-                <CardText>
+              { myPlayer.isSpy &&
+                <div>
                   { gameStatus.spies.length > 2
                     ? 'The other spies are:' : 'The other spy is:'}
                   <ul>
                     { gameStatus.spies.map(name => (
-                      name !== myPlayer.name ? <li>{ name }</li> : ''
+                      name !== myPlayer.name && <li key={name}>{ name }</li>
                     )) }
                   </ul>
-                </CardText>
+                </div>
               }
             </div>
           }

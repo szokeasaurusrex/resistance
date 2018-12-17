@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Row, Col, Button } from 'reactstrap'
-import FontAwesomerIcon from '../components/FontAwesomerIcon.js'
+import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faPlus, faSignInAlt } from '@fortawesome/free-solid-svg-icons'
 
 export default class Home extends React.Component {

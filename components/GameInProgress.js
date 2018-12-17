@@ -3,11 +3,10 @@
 /* global confirm */
 
 import React from 'react'
-import PageHeader from '../components/PageHeader.js'
-import TeamInfo from '../components/TeamInfo.js'
-import Overlay from '../components/Overlay.js'
-import Spinner from '../components/Spinner.js'
-import FontAwesomerIcon from '../components/FontAwesomerIcon.js'
+import TeamInfo from './TeamInfo.js'
+import Mission from './Mission.js'
+import Vote from './Vote.js'
+import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { Row, Col, Button } from 'reactstrap'
 
@@ -27,26 +26,54 @@ export default class GameInProgress extends React.Component {
       canHideTeam,
       myPlayer,
       socketEmmitter,
-      ...rest } = this.props
+      draftProposal,
+      ...rest
+    } = this.props
+    const voting = gameStatus.voting
+
     return (
       <div {...rest}>
         { process.env.NODE_ENV !== 'production' &&
           <p>Player name: {myPlayer.name}</p>
         }
-        <PageHeader centering={false}>
-          <TeamInfo
-            canHideTeam={canHideTeam}
-            myPlayer={myPlayer}
-            gameStatus={gameStatus}
-          />
-        </PageHeader>
+        <TeamInfo
+          canHideTeam={canHideTeam}
+          myPlayer={myPlayer}
+          gameStatus={gameStatus}
+        />
+        <br />
+        { voting &&
+          <div>
+            <Vote
+              voting={voting}
+              socketEmmitter={socketEmmitter}
+              myPlayer={myPlayer}
+            />
+            <br />
+          </div>
+        }
+        { canHideTeam &&
+          <div>
+            <Mission
+              myPlayer={myPlayer}
+              gameStatus={gameStatus}
+              draftProposal={draftProposal}
+              socketEmmitter={socketEmmitter}
+              voting={voting}
+            />
+            <br />
+          </div>
+        }
+        <hr />
+        <br />
         <Row>
           <Col md='3'>
-            <Button color='danger' size='lg' block onClick={this.endRound}>
+            <Button color='dark' size='lg' block onClick={this.endRound}>
               <FontAwesomerIcon icon={faTrashAlt} /> End round
             </Button>
           </Col>
         </Row>
+        <br />
       </div>
     )
   }

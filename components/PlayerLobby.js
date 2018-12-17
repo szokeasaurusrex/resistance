@@ -4,7 +4,7 @@
 
 import React from 'react'
 import { Table, Button, Row, Col } from 'reactstrap'
-import FontAwesomerIcon from '../components/FontAwesomerIcon.js'
+import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faTimes,
   faPencilAlt,
   faTrashAlt,
