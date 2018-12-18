@@ -21,8 +21,7 @@ async function endRound (gameDb) {
         winner: ''
       }
     }),
-    gameDb.collection('teams').drop(),
-    gameDb.collection('voteLog').drop()
+    gameDb.collection('teams').drop()
   ])
 }
 

@@ -70,7 +70,6 @@ async function endVote (gameDb) {
       startNextMission(gameDb, status, newScores)
     )
   }
-  mongoCommands.push(gameDb.collection('voteLog').insertOne(voteData))
   await Promise.all(mongoCommands)
 }
 
