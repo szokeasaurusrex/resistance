@@ -45,7 +45,7 @@ export default class PlayerLobby extends React.Component {
       'Removing player')
   }
   render () {
-    const gameCodeLength = 6
+    const gameCodeLength = process.env.GAME_CODE_LENGTH
     const {
       children,
       gameCode,

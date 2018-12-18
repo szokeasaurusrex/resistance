@@ -4,9 +4,9 @@
   "description": "Online multiplayer implementation of resistance game",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --inspect --ignore components/ --ignore pages/ --ignore .next/ server.js",
+    "dev": "GAME_CODE_LENGTH=6 nodemon --inspect --ignore components/ --ignore pages/ --ignore .next/ server.js",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js",
+    "start": "GAME_CODE_LENGTH=6 NODE_ENV=production node server.js"
   },
   "repository": {
     "type": "git",
