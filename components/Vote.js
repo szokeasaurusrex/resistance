@@ -128,11 +128,6 @@ export default class Vote extends React.Component {
             )
           }
         </CardBody>
-        <style jsx>{`
-          .text-center {
-            text-align: center
-          }
-        `}</style>
       </Card>
     )
   }

@@ -23,6 +23,17 @@ export default class PageLayout extends React.Component {
             margin-top: 2em;
             color: #333333;
           }
+          .spy, .resistance {
+            font-weight: bold
+          }
+
+          .spy {
+            color: #000000;
+          }
+
+          .resistance {
+            color: #F2152B;
+          }
         `}</style>
       </div>
     )

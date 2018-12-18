@@ -6,6 +6,8 @@ import React from 'react'
 import TeamInfo from './TeamInfo.js'
 import Mission from './Mission.js'
 import Vote from './Vote.js'
+import Scores from './Scores.js'
+import MissionReference from './MissionReference.js'
 import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { Row, Col, Button } from 'reactstrap'
@@ -16,7 +18,8 @@ export default class GameInProgress extends React.Component {
     this.endRound = this.endRound.bind(this)
   }
   endRound () {
-    if (confirm('Are you sure you want to end the round?')) {
+    if (this.props.gameStatus.winner ||
+      confirm('Are you sure you want to end the round?')) {
       this.props.socketEmmitter('endRound', null, 'Ending round')
     }
   }
@@ -36,13 +39,17 @@ export default class GameInProgress extends React.Component {
         { process.env.NODE_ENV !== 'production' &&
           <p>Player name: {myPlayer.name}</p>
         }
+        <Scores
+          gameStatus={gameStatus}
+        />
+        <hr />
         <TeamInfo
           canHideTeam={canHideTeam}
           myPlayer={myPlayer}
           gameStatus={gameStatus}
         />
         <br />
-        { voting &&
+        { voting && !gameStatus.winner &&
           <div>
             <Vote
               voting={voting}
@@ -52,7 +59,7 @@ export default class GameInProgress extends React.Component {
             <br />
           </div>
         }
-        { canHideTeam &&
+        { canHideTeam && !gameStatus.winner &&
           <div>
             <Mission
               myPlayer={myPlayer}
@@ -62,6 +69,9 @@ export default class GameInProgress extends React.Component {
               voting={voting}
             />
             <br />
+            <MissionReference
+              missions={gameStatus.missions}
+            />
           </div>
         }
         <hr />

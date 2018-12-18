@@ -49,7 +49,7 @@ async function endVote (gameDb) {
   } else {
     delete voteData.votes
     const isStarRound =
-      (status.missionNumber === 3 && status.includesStarRound === true)
+      (status.missionNumber === 3 && status.missions.includesStarRound === true)
     let newScores
     if ((!isStarRound && noVotes > 0) || noVotes > 1) {
       newScores = {

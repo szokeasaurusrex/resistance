@@ -73,19 +73,6 @@ export default class TeamInfo extends React.Component {
             </Col>
           </Row>
         </CardBody>
-        <style jsx>{`
-          .spy, .resistance {
-            font-weight: bold
-          }
-
-          .spy {
-            color: #000000;
-          }
-
-          .resistance {
-            color: #F2152B;
-          }
-        `}</style>
       </Card>
     )
   }

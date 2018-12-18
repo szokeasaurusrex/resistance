@@ -12,7 +12,7 @@ async function startNextMission (gameDb, status, newScores) {
   } else {
     let { missionChooserIndex, numPlayers, missionNumber } = status
     missionChooserIndex = (missionChooserIndex + 1) % numPlayers
-    const missionFailIndex = (missionChooserIndex + 1) % numPlayers
+    const missionFailIndex = (missionChooserIndex + 2) % numPlayers
     await gameDb.collection('status').updateOne({}, {
       $set: {
         missionChooserIndex: missionChooserIndex,

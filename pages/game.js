@@ -85,6 +85,7 @@ export default class Game extends React.Component {
           this.setState(prevState => ({
             gameInProgress: true,
             gameStatus: status,
+            draftProposal: [],
             player: {
               ...prevState.player,
               isSpy: (status.spies != null)
