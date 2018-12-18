@@ -7,7 +7,6 @@
     "dev": "nodemon --inspect --ignore components/ --ignore pages/ --ignore .next/ server.js",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
-    "inspect": "node --inspect server.js"
   },
   "repository": {
     "type": "git",
