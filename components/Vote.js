@@ -73,31 +73,23 @@ export default class Vote extends React.Component {
     return (
       <Card {...rest}>
         <CardBody>
-          <CardTitle>Vote</CardTitle>
-          { voting.isProposal ? 'Mission proposal:' : 'Proposal passed:' }<br />
-          <ul>
-            { voting.missionList.includes(myPlayer.name) &&
-              <li key={myPlayer.name}><strong>Me</strong></li>
-            }
-            { voting.missionList.map(player => (
-              player !== myPlayer.name &&
-              <li key={player}>{ player }</li>
-            ))}
-          </ul>
-          <hr />
-          { this.state.voted ||
-            !(voting.isProposal || voting.missionList.includes(myPlayer.name))
+          { (voting.isProposal || voting.missionList.includes(myPlayer.name)) &&
+            !this.state.voted
             ? (
               <div>
-                <Spinner />
+                <CardTitle>Vote</CardTitle>
+                { voting.isProposal ? 'Mission proposal:' : 'Mission:' }
                 <br />
-                <p className='lead text-center'>
-                  Waiting for votes...
-                </p>
-              </div>
-            )
-            : (
-              <div>
+                <ul>
+                  { voting.missionList.includes(myPlayer.name) &&
+                    <li key={myPlayer.name}><strong>Me</strong></li>
+                  }
+                  { voting.missionList.map(player => (
+                    player !== myPlayer.name &&
+                    <li key={player}>{ player }</li>
+                  ))}
+                </ul>
+                <hr />
                 <Row>
                   <Col md='5'>
                     <Button color='danger' size='lg' block
@@ -123,6 +115,15 @@ export default class Vote extends React.Component {
                 </Row>
                 <p className='small'>
                   Your vote is { voting.isProposal ? 'public' : 'private'}.
+                </p>
+              </div>
+            )
+            : (
+              <div>
+                <Spinner />
+                <br />
+                <p className='lead text-center'>
+                  Waiting for votes...
                 </p>
               </div>
             )
