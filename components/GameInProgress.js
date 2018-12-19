@@ -8,6 +8,7 @@ import Mission from './Mission.js'
 import Vote from './Vote.js'
 import Scores from './Scores.js'
 import MissionReference from './MissionReference.js'
+import VoteResults from './VoteResults.js'
 import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { Row, Col, Button } from 'reactstrap'
@@ -49,6 +50,10 @@ export default class GameInProgress extends React.Component {
           gameStatus={gameStatus}
         />
         <br />
+        <VoteResults
+          voteResults={gameStatus.voteResults || {}}
+          myPlayer={myPlayer}
+        />
         { voting && !gameStatus.winner &&
           <div>
             <Vote

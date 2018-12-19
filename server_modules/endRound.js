@@ -18,7 +18,8 @@ async function endRound (gameDb) {
         numPlayers: '',
         scores: '',
         missionNumber: '',
-        winner: ''
+        winner: '',
+        voteResults: ''
       }
     }),
     gameDb.collection('teams').drop()

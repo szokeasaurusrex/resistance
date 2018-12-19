@@ -16,12 +16,11 @@ async function endVote (gameDb) {
   const yesVotes = votes.length - noVotes
   const voteData = {
     missionNumber: status.missionNumber,
-    isProposal: status.voting.isProposal,
     tally: {
       yes: yesVotes,
       no: noVotes
     },
-    votes: votes
+    ...status.voting
   }
   let mongoCommands = []
   if (status.voting.isProposal) {
@@ -46,12 +45,25 @@ async function endVote (gameDb) {
         $unset: { voting: '' }
       }))
     }
+    mongoCommands.push(
+      gameDb.collection('status').updateOne({}, {
+        $set: {
+          'voteResults.proposal': {
+            votes: votes,
+            passed: yesVotes > noVotes,
+            ...voteData
+          }
+        }
+      })
+    )
   } else {
     delete voteData.votes
-    const isStarRound =
-      (status.missionNumber === 3 && status.missions.includesStarRound === true)
+    const isStarRound = (
+      status.missionNumber === 3 && status.missions.includesStarRound === true
+    )
+    const failed = (!isStarRound && noVotes > 0) || noVotes > 1
     let newScores
-    if ((!isStarRound && noVotes > 0) || noVotes > 1) {
+    if (failed) {
       newScores = {
         resistance: status.scores.resistance,
         spies: status.scores.spies + 1
@@ -64,7 +76,10 @@ async function endVote (gameDb) {
     }
     mongoCommands.push(
       gameDb.collection('status').updateOne({}, {
-        $set: { scores: newScores },
+        $set: {
+          scores: newScores,
+          'voteResults.mission': { passed: !failed, ...voteData }
+        },
         $unset: { voting: '' }
       }),
       startNextMission(gameDb, status, newScores)
