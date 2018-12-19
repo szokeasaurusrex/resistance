@@ -75,11 +75,10 @@ export default class VoteResults extends React.Component {
         { proposal &&
           <Alert color={proposal.passed ? 'danger' : 'dark'}
             isOpen={this.state.proposalVisible} toggle={this.dismissProposal}>
-            <h4 className='alert-heading'>Proposal Results</h4>
             <p className='lead'>
-              The proposal { proposal.passed
-                ? `passed ${proposal.tally.yes}-${proposal.tally.no}.`
-                : `failed ${proposal.tally.no}-${proposal.tally.yes}.`
+              Proposal { proposal.passed
+                ? `passes ${proposal.tally.yes}-${proposal.tally.no}.`
+                : `fails ${proposal.tally.no}-${proposal.tally.yes}.`
               }
             </p>
             <p>
@@ -127,24 +126,27 @@ export default class VoteResults extends React.Component {
         { mission &&
           <Alert color={mission.passed ? 'danger' : 'dark'}
             isOpen={this.state.missionVisible} toggle={this.dismissMission}>
-            <h4 className='alert-heading'>
-              Mission #{mission.missionNumber + 1} Results
-            </h4>
             <p className='lead'>
-              { mission.passed
+              Mission #{mission.missionNumber + 1} { mission.passed
                 ? (
-                  <p className='lead'>
-                    <FontAwesomerIcon icon={faFistRaised} /> Resistance wins
-                    this mission!
-                  </p>
+                  <span>
+                    accomplished! <FontAwesomerIcon icon={faFistRaised} />
+                  </span>
                 )
                 : (
-                  <p className='lead'>
-                    <FontAwesomerIcon icon={faUserSecret} /> Spies win this
-                    mission!
-                  </p>
+                  <span>
+                    failed. <FontAwesomerIcon icon={faUserSecret} />
+                  </span>
                 )
               }
+            </p>
+            <p>
+              Mission list: { proposal.missionList.map((name, index) => (
+                <span key='name'>
+                  {name === myPlayer.name ? <strong>Me</strong> : name}
+                  {index !== proposal.missionList.length - 1 && ', '}
+                </span>
+              ))}
             </p>
             { mission.tally.no > 0 &&
               <p>
