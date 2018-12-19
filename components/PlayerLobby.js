@@ -92,7 +92,7 @@ export default class PlayerLobby extends React.Component {
                       </Button>
                     </span>
                   }
-                  <Button color='danger' size='sm' onClick={
+                  <Button color='dark' size='sm' onClick={
                     () => this.handleRemoveClick(player)
                   }>
                     <FontAwesomerIcon icon={faTimes} />
@@ -104,7 +104,7 @@ export default class PlayerLobby extends React.Component {
         </Table>
         <Row>
           <Col lg='3' sm='5'>
-            <Button color='danger' size='lg' block
+            <Button color='dark' size='lg' block
               onClick={this.handleEndGameClick}>
               <FontAwesomerIcon icon={faTrashAlt} /> End game
             </Button>
@@ -112,7 +112,7 @@ export default class PlayerLobby extends React.Component {
           </Col>
           <Col lg='6' xs='2' />
           <Col lg='3' sm='5'>
-            <Button color='success' size='lg' block
+            <Button color='danger' size='lg' block
               disabled={players.length < 5} onClick={this.handleRoundStart}>
               Start game <FontAwesomerIcon icon={faArrowRight} />
             </Button>
