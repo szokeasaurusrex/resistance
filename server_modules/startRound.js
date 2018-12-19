@@ -52,6 +52,7 @@ async function startRound (gameDb) {
     playing: true,
     lastGameStart: new Date(),
     numPlayers: numPlayers,
+    numSpies: numSpies,
     missionChooserIndex: missionChooserIndex,
     missionFailIndex: (missionChooserIndex + 2) % numPlayers,
     missionNumber: 0,

@@ -75,6 +75,8 @@ export default class GameInProgress extends React.Component {
             />
             <br />
             <MissionReference
+              numPlayers={gameStatus.numPlayers}
+              numSpies={gameStatus.numSpies}
               missions={gameStatus.missions}
             />
           </div>
