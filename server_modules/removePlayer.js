@@ -28,7 +28,7 @@ async function removePlayer (gameDb, playerName) {
       $inc: { order: -1 }
     })
   )
-  if (players.length === 0) {
+  if (players.length === 1) {
     deleteCommands.push(
       gameDb.dropDatabase(),
       gamesCollection.deleteOne({
