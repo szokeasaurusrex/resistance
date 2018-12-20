@@ -6,7 +6,6 @@ import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 
 export default class NextMissionLeaders extends React.Component {
   render () {
-    const listSize = 3
     const {
       players,
       myPlayer,
@@ -15,6 +14,7 @@ export default class NextMissionLeaders extends React.Component {
       children,
       ...rest
     } = this.props
+    const listSize = players.length - 1
     const nextLeaders = []
     let playerIndex = missionChooserIndex
     for (let i = 0; i < listSize; i++) {
