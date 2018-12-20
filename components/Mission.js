@@ -37,7 +37,7 @@ export default class Mission extends React.Component {
           <CardTitle>Mission #{ missionNumber + 1 }</CardTitle>
           { mustPass &&
             <strong>
-              <FontAwesomerIcon icon={faUserSecret} /> Spies earn point if
+              <FontAwesomerIcon icon={faUserSecret} /> Spies win game if
               mission fails to pass!
               <br />
             </strong>

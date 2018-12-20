@@ -31,7 +31,7 @@ export default class NextMissionLeaders extends React.Component {
           { nextLeaders.map(leader => (
             <li key={leader.name}>
               {leader.name === myPlayer.name
-                ? <strong>Me </strong> : leader.name + ' '}
+                ? <strong>Me</strong> : leader.name}{' '}
               {leader.mustPass &&
                 <FontAwesomerIcon icon={faUserSecret} />
               }
@@ -40,7 +40,7 @@ export default class NextMissionLeaders extends React.Component {
         </ol>
         <p className='small'>
           <FontAwesomerIcon icon={faUserSecret} /> indicates that mission must
-          pass, or else spies will earn a point.
+          pass, or else spies will win the game.
         </p>
       </div>
     )

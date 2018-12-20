@@ -29,15 +29,9 @@ async function endVote (gameDb) {
       newVote.isProposal = false
       mongoCommands.push(startVote(gameDb, newVote, true))
     } else if (status.missionChooserIndex === status.missionFailIndex) {
-      const newScores = {
-        resistance: status.scores.resistance,
-        spies: status.scores.spies + 1
-      }
-      await gameDb.collection('status').updateOne({}, {
-        $set: { scores: newScores },
-        $unset: { voting: '' }
-      })
-      mongoCommands.push(startNextMission(gameDb, status, newScores))
+      mongoCommands.push(gameDb.collection('status').updateOne({}, {
+        $set: { winner: 'spies' }
+      }))
     } else {
       const newIndex = (status.missionChooserIndex + 1) % status.numPlayers
       mongoCommands.push(gameDb.collection('status').updateOne({}, {
