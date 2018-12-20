@@ -6,7 +6,6 @@ import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
 
 export default class NextMissionLeaders extends React.Component {
   render () {
-    const listSize = 3
     const {
       players,
       myPlayer,
@@ -15,6 +14,7 @@ export default class NextMissionLeaders extends React.Component {
       children,
       ...rest
     } = this.props
+    const listSize = players.length - 1
     const nextLeaders = []
     let playerIndex = missionChooserIndex
     for (let i = 0; i < listSize; i++) {
@@ -31,7 +31,7 @@ export default class NextMissionLeaders extends React.Component {
           { nextLeaders.map(leader => (
             <li key={leader.name}>
               {leader.name === myPlayer.name
-                ? <strong>Me </strong> : leader.name + ' '}
+                ? <strong>Me</strong> : leader.name}{' '}
               {leader.mustPass &&
                 <FontAwesomerIcon icon={faUserSecret} />
               }
@@ -40,7 +40,7 @@ export default class NextMissionLeaders extends React.Component {
         </ol>
         <p className='small'>
           <FontAwesomerIcon icon={faUserSecret} /> indicates that mission must
-          pass, or else spies will earn a point.
+          pass, or else spies will win the game.
         </p>
       </div>
     )

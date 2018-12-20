@@ -54,7 +54,7 @@ async function startRound (gameDb) {
     numPlayers: numPlayers,
     numSpies: numSpies,
     missionChooserIndex: missionChooserIndex,
-    missionFailIndex: (missionChooserIndex + 2) % numPlayers,
+    missionFailIndex: (missionChooserIndex + 4) % numPlayers,
     missionNumber: 0,
     missions: missions,
     scores: {
