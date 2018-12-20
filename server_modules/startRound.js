@@ -5,7 +5,7 @@ const UserException = require('./UserException.js')
 async function startRound (gameDb) {
   const [gameStatus, playerList] = await Promise.all([
     gameDb.collection('status').findOne({}),
-    gameDb.collection('players').find({}).toArray()
+    gameDb.collection('players').find().toArray()
   ])
   if (gameStatus.playing) {
     throw new UserException('Cannot start game. Game is in progress.')

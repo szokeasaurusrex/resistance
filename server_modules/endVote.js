@@ -7,7 +7,7 @@ const startNextMission = require('./startNextMission.js')
 async function endVote (gameDb) {
   const [ status, votes ] = await Promise.all([
     gameDb.collection('status').findOne({}),
-    gameDb.collection('votes').find({}).toArray()
+    gameDb.collection('votes').find().toArray()
   ])
   if (!status.voting) {
     throw new UserException('Cannot end vote. The vote is not in progress.')

@@ -9,7 +9,7 @@ async function periodicallyDeleteGames (callback) {
   const gamesCollection = getGamesCollection()
 
   try {
-    const games = await gamesCollection.find({}).toArray()
+    const games = await gamesCollection.find().toArray()
     const gameStatuses = await Promise.all(
       Array.from(games, game => new Promise(async (resolve, reject) => {
         try {

@@ -4,7 +4,6 @@ function cleanPlayers (players) {
   // return only player properties safe to share with client
   return players.map(player => ({
     name: player.name,
-    order: player.order,
     gameCode: player.gameCode
   }))
 }
@@ -13,7 +12,7 @@ async function getGameStatus (gameDb, player) {
   try {
     const [gameStatus, players, teams] = await Promise.all([
       gameDb.collection('status').findOne({}),
-      gameDb.collection('players').find({}).toArray(),
+      gameDb.collection('players').find().sort({ order: 1 }).toArray(),
       gameDb.collection('teams').findOne({})
     ])
     const cleanedPlayers = cleanPlayers(players)
