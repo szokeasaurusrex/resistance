@@ -6,6 +6,7 @@ const getGamesCollection = require('./db.js').getGamesCollection
 const authUser = require('./authUser.js')
 const getGameStatus = require('./getGameStatus.js')
 const changeName = require('./changeName.js')
+const sortPlayer = require('./sortPlayer.js')
 const removePlayer = require('./removePlayer.js')
 const handleSocketError = require('./handleSocketError.js')
 const startRound = require('./startRound.js')
@@ -58,6 +59,18 @@ function handleSocketConnections (io) {
           sockets[gameCode][player.name] = socket
           delete sockets[gameCode][oldName]
           socket.emit('nameChanged', msg)
+          io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
+          socket.emit('actionCompleted')
+        } catch (e) {
+          handleSocketError(e, socket)
+        }
+      }
+    })
+
+    socket.on('sortPlayer', async sortAction => {
+      if (player.authenticated) {
+        try {
+          await sortPlayer(gameDb, ...sortAction)
           io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
           socket.emit('actionCompleted')
         } catch (e) {
@@ -156,8 +169,8 @@ function handleSocketConnections (io) {
     socket.on('removalRequest', async playerToRemove => {
       if (player.authenticated) {
         try {
-          const result = await removePlayer(gameDb, playerToRemove)
-          io.to(roomAll).emit('removedPlayer', result.playerToRemove)
+          const result = await removePlayer(gameDb, playerToRemove.name)
+          io.to(roomAll).emit('removedPlayer', result.playerRemoved)
           const removedSocket = sockets[gameCode][playerToRemove.name]
           if (removedSocket) {
             removedSocket.emit('kicked')

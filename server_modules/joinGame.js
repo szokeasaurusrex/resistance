@@ -48,7 +48,7 @@ async function joinGame (db, name, gameCode) {
     gamesCollection.findOne({ code: gameCode }),
     gameDb.collection('status').findOne({}),
     gameDb.collection('players').findOne({ name: name }),
-    gameDb.collection('players').find({}).toArray()
+    gameDb.collection('players').find().toArray()
   ])
   if (!gameExists) {
     throw new UserException(`The game ${gameCode} does not exist.`)

@@ -6,7 +6,7 @@ const endVote = require('./endVote.js')
 async function submitVote (gameDb, vote, player) {
   const [ status, votes ] = await Promise.all([
     gameDb.collection('status').findOne({}),
-    gameDb.collection('votes').find({}).toArray()
+    gameDb.collection('votes').find().toArray()
   ])
   if (!status.voting) {
     throw new UserException('Voting is currently not in progress!')

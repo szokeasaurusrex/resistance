@@ -3,35 +3,42 @@
 const UserException = require('./UserException.js')
 const getGamesCollection = require('./db.js').getGamesCollection
 
-async function removePlayer (gameDb, playerToRemove) {
+async function removePlayer (gameDb, playerName) {
   const gamesCollection = getGamesCollection()
-
-  const mongoCommands = await Promise.all([
+  const [status, players] = await Promise.all([
     gameDb.collection('status').findOne({}),
-    gameDb.collection('players').findOne({
-      name: playerToRemove.name
-    })
+    gameDb.collection('players').find().toArray()
   ])
-  const status = mongoCommands[0]
-  const playerToRemoveMongo = mongoCommands[1]
+  const playerToRemove = players.find(
+    player => player.name === playerName
+  )
   if (status.playing) {
     throw new UserException('Cannot remove player while game in progress')
-  } else if (!playerToRemoveMongo) {
+  } else if (playerToRemove == null) {
     throw new UserException('The player you try to remove is not in game')
   }
-  await gameDb.collection('players').deleteOne({ name: playerToRemove.name })
-  const players = await gameDb.collection('players').find({}).toArray()
+  const deleteCommands = []
+  deleteCommands.push(
+    gameDb.collection('players').deleteOne({
+      name: playerToRemove.name
+    }),
+    gameDb.collection('players').updateMany({
+      order: { $gt: playerToRemove.order }
+    }, {
+      $inc: { order: -1 }
+    })
+  )
   if (players.length === 0) {
-    await Promise.all([
+    deleteCommands.push(
       gameDb.dropDatabase(),
       gamesCollection.deleteOne({
         code: playerToRemove.gameCode
       })
-    ])
+    )
   }
+  await Promise.all(deleteCommands)
   return {
-    playerToRemove: playerToRemove,
-    socketClientId: playerToRemoveMongo.socketClientId
+    playerRemoved: playerToRemove
   }
 }
 

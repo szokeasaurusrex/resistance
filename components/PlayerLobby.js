@@ -5,10 +5,14 @@
 import React from 'react'
 import { Table, Button, Row, Col } from 'reactstrap'
 import FontAwesomerIcon from './FontAwesomerIcon.js'
-import { faTimes,
+import {
+  faTimes,
   faPencilAlt,
   faTrashAlt,
-  faArrowRight } from '@fortawesome/free-solid-svg-icons'
+  faArrowRight,
+  faArrowUp,
+  faArrowDown
+} from '@fortawesome/free-solid-svg-icons'
 
 export default class PlayerLobby extends React.Component {
   constructor (props) {
@@ -17,6 +21,7 @@ export default class PlayerLobby extends React.Component {
     this.handleRemoveClick = this.handleRemoveClick.bind(this)
     this.handleEndGameClick = this.handleEndGameClick.bind(this)
     this.handleRoundStart = this.handleRoundStart.bind(this)
+    this.handleSortClick = this.handleSortClick.bind(this)
   }
   handleRoundStart () {
     this.props.socketEmmitter('startRound', null, 'Starting game')
@@ -39,6 +44,9 @@ export default class PlayerLobby extends React.Component {
         newName: newName
       }, 'Changing name')
     }
+  }
+  handleSortClick (...sortAction) {
+    this.props.socketEmmitter('sortPlayer', sortAction, 'Reordering list')
   }
   handleRemoveClick (playerToRemove) {
     this.props.socketEmmitter('removalRequest', playerToRemove,
@@ -70,31 +78,42 @@ export default class PlayerLobby extends React.Component {
           <thead>
             <tr>
               <th width='100%'>Name</th>
-              <th nowrap='true'>Actions</th>
+              <th nowrap='true' className='text-align-right'>Actions</th>
             </tr>
           </thead>
           <tbody>
-            { players.map(player =>
+            { players.map((player, index) =>
               <tr key={player.name}>
                 <td width='100%'>
                   {
                     player.name === myPlayer.name
-                      ? <strong>{player.name} (me)</strong>
+                      ? <strong>{player.name}</strong>
                       : player.name
+                  }
+                  { player.name === myPlayer.name &&
+                    <Button color='link'
+                      onClick={this.handleEditClick}>
+                      <FontAwesomerIcon icon={faPencilAlt} />
+                    </Button>
                   }
                 </td>
                 <td nowrap='true' className='text-align-right'>
-                  { player.name === myPlayer.name &&
-                    <span className='edit-btn-container'>
-                      <Button color='primary' size='sm'
-                        onClick={this.handleEditClick}>
-                        <FontAwesomerIcon icon={faPencilAlt} />
-                      </Button>
-                    </span>
+
+                  <span className='button-spacer' />
+                  { index !== 0 &&
+                    <Button color='link'
+                      onClick={() => this.handleSortClick(player.name, 'up')}>
+                      <FontAwesomerIcon icon={faArrowUp} />
+                    </Button>
                   }
-                  <Button color='dark' size='sm' onClick={
-                    () => this.handleRemoveClick(player)
-                  }>
+                  { index !== players.length - 1 &&
+                    <Button color='link'
+                      onClick={() => this.handleSortClick(player.name, 'down')}>
+                      <FontAwesomerIcon icon={faArrowDown} />
+                    </Button>
+                  }
+                  <Button color='link'
+                    onClick={() => this.handleRemoveClick(player)}>
                     <FontAwesomerIcon icon={faTimes} />
                   </Button>
                 </td>
@@ -123,9 +142,6 @@ export default class PlayerLobby extends React.Component {
         <style jsx>{`
           .text-align-right {
             text-align: right;
-          }
-          .edit-btn-container {
-            margin-right: 5px;
           }
         `}</style>
       </div>
