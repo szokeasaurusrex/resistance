@@ -36,11 +36,14 @@ export default class Index extends React.Component {
       header: 'Join Game'
     })
   }
-  async handleCreateJoinSubmit (event) {
+  async handleCreateJoinSubmit (event, reCaptchaValue) {
     try {
       event.preventDefault()
       const form = event.target
-      const data = { playerName: form.name.value }
+      const data = {
+        playerName: form.name.value,
+        reCaptchaValue: reCaptchaValue
+      }
       if (form.code && (form.code.value >= 1000000 || form.code.value < 0)) {
         throw new Error(
           'Game must be 6 digits or less, and cannot be negative.'

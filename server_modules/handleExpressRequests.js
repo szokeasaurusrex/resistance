@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const next = require('next')
 const getDb = require('./db.js').getDb
 const joinGame = require('./joinGame.js')
+const fetch = require('node-fetch')
 const UserException = require('./UserException.js')
 
 const dev = process.env.NODE_ENV !== 'production'
@@ -25,8 +26,23 @@ async function handleExpressRequests (server) {
   // create or join game
   server.post('/join', async (req, res) => {
     try {
-      const { playerName } = req.body
-      let { gameCode } = req.body
+      const { playerName, gameCode, reCaptchaValue } = req.body
+
+      if (gameCode == null) {
+        const response = await fetch(
+          'https://www.google.com/recaptcha/api/siteverify',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              secret: process.env.RECAPTCHA_SECRET_KEY,
+              response: reCaptchaValue
+            })
+          }
+        )
+        if (response.success === false) {
+          throw new UserException('ReCaptcha validation failed.')
+        }
+      }
 
       // Join game, send name and key to client
       res.json(await joinGame(db, playerName, gameCode))
