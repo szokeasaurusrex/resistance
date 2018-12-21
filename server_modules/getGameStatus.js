@@ -16,9 +16,8 @@ async function getGameStatus (gameDb, player) {
       gameDb.collection('teams').findOne({})
     ])
     const cleanedPlayers = cleanPlayers(players)
+    const { lastGameStart, ...cleanedStatus } = gameStatus
     if (gameStatus.playing) {
-      // TODO: add actions for mission proposal, voting, etc.
-      const { lastGameStart, ...cleanedStatus } = gameStatus
       if (player != null && teams.resistance.includes(player)) {
         return {
           players: cleanedPlayers,
@@ -33,7 +32,7 @@ async function getGameStatus (gameDb, player) {
       }
     } else {
       return {
-        playing: false,
+        ...cleanedStatus,
         players: cleanedPlayers
       }
     }

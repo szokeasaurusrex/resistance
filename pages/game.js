@@ -81,7 +81,6 @@ export default class Game extends React.Component {
 
       this.socket.on('gameStatus', status => {
         if (status.playing) {
-          console.log(status.spies)
           this.setState(prevState => ({
             gameInProgress: true,
             gameStatus: status,
@@ -152,7 +151,7 @@ export default class Game extends React.Component {
               <PageHeader>{this.state.header}</PageHeader>
               <PlayerLobby
                 gameCode={this.state.gameCode}
-                players={this.state.gameStatus.players || []}
+                gameStatus={this.state.gameStatus}
                 myPlayer={this.state.player}
                 socketEmmitter={this.socketEmmitter}
               />

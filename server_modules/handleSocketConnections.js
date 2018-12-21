@@ -6,6 +6,7 @@ const getGamesCollection = require('./db.js').getGamesCollection
 const authUser = require('./authUser.js')
 const getGameStatus = require('./getGameStatus.js')
 const changeName = require('./changeName.js')
+const changeOptions = require('./changeOptions.js')
 const sortPlayer = require('./sortPlayer.js')
 const removePlayer = require('./removePlayer.js')
 const handleSocketError = require('./handleSocketError.js')
@@ -71,6 +72,18 @@ function handleSocketConnections (io) {
       if (player.authenticated) {
         try {
           await sortPlayer(gameDb, ...sortAction)
+          io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
+          socket.emit('actionCompleted')
+        } catch (e) {
+          handleSocketError(e, socket)
+        }
+      }
+    })
+
+    socket.on('changeOptions', async newOptions => {
+      if (player.authenticated) {
+        try {
+          await changeOptions(gameDb, newOptions)
           io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
           socket.emit('actionCompleted')
         } catch (e) {

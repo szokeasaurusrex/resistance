@@ -3,7 +3,7 @@
 /* global confirm */
 
 import React from 'react'
-import { Table, Button, Row, Col } from 'reactstrap'
+import { Table, Button, Row, Col, CustomInput } from 'reactstrap'
 import FontAwesomerIcon from './FontAwesomerIcon.js'
 import {
   faTimes,
@@ -22,6 +22,14 @@ export default class PlayerLobby extends React.Component {
     this.handleEndGameClick = this.handleEndGameClick.bind(this)
     this.handleRoundStart = this.handleRoundStart.bind(this)
     this.handleSortClick = this.handleSortClick.bind(this)
+    this.toggleInquisitor = this.toggleInquisitor.bind(this)
+  }
+  toggleInquisitor () {
+    const options = this.props.gameStatus.options
+    this.props.socketEmmitter('changeOptions', {
+      ...options,
+      inquisitor: !options.inquisitor
+    }, 'Changing game options')
   }
   handleRoundStart () {
     this.props.socketEmmitter('startRound', null, 'Starting game')
@@ -57,7 +65,7 @@ export default class PlayerLobby extends React.Component {
     const {
       children,
       gameCode,
-      players,
+      gameStatus: { players = [], options = {} },
       myPlayer,
       nameChanger,
       socketEmmitter,
@@ -121,6 +129,11 @@ export default class PlayerLobby extends React.Component {
             ) }
           </tbody>
         </Table>
+        <h6>Options</h6>
+        <CustomInput type='checkbox' label='Use Inquisitor role'
+          checked={options.inquisitor === true} id='inquisitor-checkbox'
+          onChange={this.toggleInquisitor} />
+        <hr />
         <Row>
           <Col lg='3' sm='5'>
             <Button color='dark' size='lg' block
