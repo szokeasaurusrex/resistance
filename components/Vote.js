@@ -4,7 +4,7 @@
 
 import React from 'react'
 import { Card, CardTitle, CardBody, Button, Row, Col } from 'reactstrap'
-import Spinner from './Spinner.js'
+import WaitingSection from './WaitingSection.js'
 import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faFistRaised,
   faUserSecret,
@@ -119,13 +119,7 @@ export default class Vote extends React.Component {
               </div>
             )
             : (
-              <div>
-                <Spinner />
-                <br />
-                <p className='lead text-center'>
-                  Waiting for votes...
-                </p>
-              </div>
+              <WaitingSection>Waiting for votes...</WaitingSection>
             )
           }
         </CardBody>

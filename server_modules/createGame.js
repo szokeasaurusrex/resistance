@@ -15,7 +15,10 @@ async function createGame (db, gamesCollection) {
   await Promise.all([
     db.db('game-' + gameCode).collection('status').insertOne({
       playing: false,
-      lastGameStart: new Date()
+      lastGameStart: new Date(),
+      options: {
+        inquisitor: false
+      }
     }),
     gamesCollection.insertOne({
       code: gameCode

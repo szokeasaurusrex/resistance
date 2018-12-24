@@ -15,7 +15,7 @@ export default class Mission extends React.Component {
       gameStatus,
       socketEmmitter,
       draftProposal,
-      voting,
+      inactive,
       children,
       ...rest
     } = this.props
@@ -57,28 +57,41 @@ export default class Mission extends React.Component {
               ? <strong>Me</strong>
               : missionChooser
           }
+
+          { gameStatus.options.inquisitor &&
+            <span>
+              <br />
+              Inquisitor (after Misssion #{
+                gameStatus.inquisitor.afterMissionNumber + 1
+              }): { gameStatus.inquisitor.current === myPlayer.name
+                ? <strong>Me</strong>
+                : gameStatus.inquisitor.current
+              }
+            </span>
+          }
           <hr />
-          { !voting && (myPlayer.name === missionChooser
-            ? (
-              <div>
-                <ProposeMissionForm
-                  players={players}
-                  myPlayer={myPlayer}
-                  socketEmmitter={socketEmmitter}
-                  missionSize={missionSize}
-                />
-                <hr />
-              </div>
-            )
-            : (draftProposal.length > 0 &&
-              <div>
-                <MissionDraftProposal
-                  draftProposal={draftProposal}
-                  myPlayer={myPlayer}
-                />
-                <hr />
-              </div>
-            )
+          { !inactive && (
+            myPlayer.name === missionChooser
+              ? (
+                <div>
+                  <ProposeMissionForm
+                    players={players}
+                    myPlayer={myPlayer}
+                    socketEmmitter={socketEmmitter}
+                    missionSize={missionSize}
+                  />
+                  <hr />
+                </div>
+              )
+              : (draftProposal.length > 0 &&
+                <div>
+                  <MissionDraftProposal
+                    draftProposal={draftProposal}
+                    myPlayer={myPlayer}
+                  />
+                  <hr />
+                </div>
+              )
           )}
           {
             <NextMissionLeaders

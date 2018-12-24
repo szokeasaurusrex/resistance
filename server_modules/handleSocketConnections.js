@@ -6,8 +6,10 @@ const getGamesCollection = require('./db.js').getGamesCollection
 const authUser = require('./authUser.js')
 const getGameStatus = require('./getGameStatus.js')
 const changeName = require('./changeName.js')
+const changeOptions = require('./changeOptions.js')
 const sortPlayer = require('./sortPlayer.js')
 const removePlayer = require('./removePlayer.js')
+const inquisitorInspect = require('./inquisitorInspect.js')
 const handleSocketError = require('./handleSocketError.js')
 const startRound = require('./startRound.js')
 const startVote = require('./startVote.js')
@@ -79,6 +81,18 @@ function handleSocketConnections (io) {
       }
     })
 
+    socket.on('changeOptions', async newOptions => {
+      if (player.authenticated) {
+        try {
+          await changeOptions(gameDb, newOptions)
+          io.to(roomAll).emit('gameStatus', await getGameStatus(gameDb))
+          socket.emit('actionCompleted')
+        } catch (e) {
+          handleSocketError(e, socket)
+        }
+      }
+    })
+
     socket.on('startRound', async () => {
       if (player.authenticated) {
         try {
@@ -92,6 +106,21 @@ function handleSocketConnections (io) {
           handleSocketError(e, socket)
         } finally {
           io.to(roomAll).emit('actionCompleted')
+        }
+      }
+    })
+
+    socket.on('inquisitorInspect', async playerToInspect => {
+      if (player.authenticated) {
+        try {
+          const response = await inquisitorInspect(
+            gameDb, player.name, playerToInspect
+          )
+          socket.emit('inquisitorResponse', response)
+          emitStatusToTeams(sockets[gameCode], await getGameStatus(gameDb))
+          socket.emit('actionCompleted')
+        } catch (e) {
+          handleSocketError(e, socket)
         }
       }
     })

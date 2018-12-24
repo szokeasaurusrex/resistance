@@ -27,9 +27,7 @@ async function startRound (gameDb) {
       missions.order = [2, 3, 3, 4, 4]
       missions.includesStarRound = true
       break
-    case 8:
-    case 9:
-    case 10:
+    case 8: case 9: case 10:
       missions.order = [3, 4, 4, 5, 5]
       missions.includesStarRound = true
       break
@@ -40,7 +38,7 @@ async function startRound (gameDb) {
   const numSpies = Math.ceil(numPlayers / 3)
   const playerNameList = playerList.map(player => player.name)
   const teams = {
-    resistance: playerNameList,
+    resistance: playerNameList.slice(),
     spies: []
   }
   for (let i = 0; i < numSpies; i++) {
@@ -60,6 +58,14 @@ async function startRound (gameDb) {
     scores: {
       resistance: 0,
       spies: 0
+    }
+  }
+  if (gameStatus.options.inquisitor === true) {
+    newStatus.inquisitor = {
+      current: playerNameList[Math.floor(Math.random() * numPlayers)],
+      afterMissionNumber: 1,
+      waiting: false,
+      previous: []
     }
   }
   await Promise.all([

@@ -9,6 +9,7 @@ import Vote from './Vote.js'
 import Scores from './Scores.js'
 import MissionReference from './MissionReference.js'
 import VoteResults from './VoteResults.js'
+import Inquisitor from './Inquisitor.js'
 import FontAwesomerIcon from './FontAwesomerIcon.js'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { Row, Col, Button } from 'reactstrap'
@@ -31,9 +32,13 @@ export default class GameInProgress extends React.Component {
       myPlayer,
       socketEmmitter,
       draftProposal,
+      inquisitorResponse,
       ...rest
     } = this.props
     const voting = gameStatus.voting
+    const inquisitorWaiting = (
+      gameStatus.options.inquisitor && gameStatus.inquisitor.waiting
+    )
 
     return (
       <div {...rest}>
@@ -54,6 +59,18 @@ export default class GameInProgress extends React.Component {
           voteResults={gameStatus.voteResults || {}}
           myPlayer={myPlayer}
         />
+        { gameStatus.options.inquisitor && !gameStatus.winner &&
+          <div>
+            <Inquisitor
+              inquisitor={gameStatus.inquisitor}
+              inquisitorResponse={inquisitorResponse}
+              players={gameStatus.players}
+              myPlayer={myPlayer}
+              socketEmmitter={socketEmmitter}
+            />
+            <br />
+          </div>
+        }
         { voting && !gameStatus.winner &&
           <div>
             <Vote
@@ -71,7 +88,7 @@ export default class GameInProgress extends React.Component {
               gameStatus={gameStatus}
               draftProposal={draftProposal}
               socketEmmitter={socketEmmitter}
-              voting={voting}
+              inactive={voting || inquisitorWaiting}
             />
             <br />
             <MissionReference

@@ -16,7 +16,7 @@ export default class MissionReference extends React.Component {
           <p>
             <strong>Mission Order: </strong>
             { missions.order.map((numPlayers, missionNum) => (
-              <span>
+              <span key={'mission-' + missionNum}>
                 { numPlayers }
                 { missionNum === 3 && missions.includesStarRound && '*' }
                 { missionNum !== missions.order.length - 1 && ', '}
