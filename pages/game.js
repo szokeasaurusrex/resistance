@@ -24,6 +24,7 @@ export default class Game extends React.Component {
       loadMessage: '',
       draftProposal: [],
       player: {},
+      inquisitorResponse: {},
       canHideTeam: true
     }
     this.socketEmmitter = this.socketEmmitter.bind(this)
@@ -93,9 +94,16 @@ export default class Game extends React.Component {
         } else {
           this.setState({
             gameStatus: status,
-            gameInProgress: false
+            gameInProgress: false,
+            inquisitorResponse: {}
           })
         }
+      })
+
+      this.socket.on('inquisitorResponse', response => {
+        this.setState({
+          inquisitorResponse: response
+        })
       })
 
       this.socket.on('gameStarted', () => {
@@ -164,6 +172,7 @@ export default class Game extends React.Component {
               myPlayer={this.state.player}
               socketEmmitter={this.socketEmmitter}
               draftProposal={this.state.draftProposal}
+              inquisitorResponse={this.state.inquisitorResponse}
             />
           )
         }

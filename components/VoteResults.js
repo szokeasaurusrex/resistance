@@ -83,7 +83,7 @@ export default class VoteResults extends React.Component {
             </p>
             <p>
               Mission list: { proposal.missionList.map((name, index) => (
-                <span key='name'>
+                <span key={name}>
                   {name === myPlayer.name ? <strong>Me</strong> : name}
                   {index !== proposal.missionList.length - 1 && ', '}
                 </span>
@@ -142,7 +142,7 @@ export default class VoteResults extends React.Component {
             </p>
             <p>
               Mission list: { proposal.missionList.map((name, index) => (
-                <span key='name'>
+                <span key={name}>
                   {name === myPlayer.name ? <strong>Me</strong> : name}
                   {index !== proposal.missionList.length - 1 && ', '}
                 </span>
