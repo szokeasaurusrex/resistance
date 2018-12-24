@@ -141,13 +141,8 @@ export default class VoteResults extends React.Component {
               }
             </p>
             <p>
-<<<<<<< HEAD
               Mission list: { mission.missionList.map((name, index) => (
                 <span key='name'>
-=======
-              Mission list: { proposal.missionList.map((name, index) => (
-                <span key={name}>
->>>>>>> inquisitor
                   {name === myPlayer.name ? <strong>Me</strong> : name}
                   {index !== mission.missionList.length - 1 && ', '}
                 </span>
